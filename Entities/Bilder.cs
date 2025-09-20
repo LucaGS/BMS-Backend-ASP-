@@ -1,10 +1,9 @@
 ﻿namespace DotNet8.WebApi.Entities
 {
-    public class GruenFlaeche
+    public class Bilder
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
         public string ImgAsText { get; set; } = string.Empty;
-        public int BildId { get; set; }
+        public int Baumid { get; set; }  
     }
 }
