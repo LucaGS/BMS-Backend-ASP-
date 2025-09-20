@@ -33,6 +33,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
+
 WebApplication app = builder.Build();
 
 app.UseSwagger(opt => opt.RouteTemplate = "openapi/{documentName}.json");
@@ -46,5 +55,6 @@ app.MapScalarApiReference(
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseCors("AllowFrontend");
 app.MapControllers();
 app.Run();

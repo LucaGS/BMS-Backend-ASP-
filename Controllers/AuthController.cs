@@ -18,14 +18,15 @@ namespace DotNet8.WebApi.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("/register")]
-        public async Task<ActionResult<User>>Register(UserDto request)
-        {  var user = await authService.RegisterAsync(request);
-            if(user == null)
+        public async Task<ActionResult<User>> Register(UserDto request)
+        {
+            var user = await authService.RegisterAsync(request);
+            if (user == null)
             {
                 return BadRequest("User already exists");
             }
-            return Ok(user);
-            
+            var token = await authService.LoginAsync(request);
+            return Ok(new { token });
         }
         [HttpPost("/login")]
         public async Task<ActionResult<string>>Login(UserDto request)
@@ -35,7 +36,7 @@ namespace DotNet8.WebApi.Controllers
             {
                 return BadRequest("Wrong credentials");
             }
-            return Ok(token);
+            return Ok(new {token});
         }
         
     }
