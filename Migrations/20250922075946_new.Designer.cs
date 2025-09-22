@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DotNet8.WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250920105844_AddEmailToUser")]
-    partial class AddEmailToUser
+    [Migration("20250922075946_new")]
+    partial class @new
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,9 @@ namespace DotNet8.WebApi.Migrations
                     b.Property<double>("Breitengrad")
                         .HasColumnType("float");
 
+                    b.Property<int>("GruenFlächenId")
+                        .HasColumnType("int");
+
                     b.Property<double>("Laengengrad")
                         .HasColumnType("float");
 
@@ -51,9 +54,48 @@ namespace DotNet8.WebApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LetzteKontrolleID");
-
                     b.ToTable("Baeume");
+                });
+
+            modelBuilder.Entity("DotNet8.WebApi.Entities.Bilder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Baumid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImgAsText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Bilder");
+                });
+
+            modelBuilder.Entity("DotNet8.WebApi.Entities.GruenFlaeche", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImgAsText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GruenFlaechen");
                 });
 
             modelBuilder.Entity("DotNet8.WebApi.Entities.Kontrolle", b =>
@@ -70,7 +112,7 @@ namespace DotNet8.WebApi.Migrations
                     b.Property<DateTime>("Datum")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NeuesKotnrollIntervall")
+                    b.Property<string>("NeuesKontrollIntervall")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -78,8 +120,6 @@ namespace DotNet8.WebApi.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BaumId");
 
                     b.ToTable("Kontrollen");
                 });
@@ -107,32 +147,6 @@ namespace DotNet8.WebApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("DotNet8.WebApi.Entities.Baum", b =>
-                {
-                    b.HasOne("DotNet8.WebApi.Entities.Kontrolle", "LetzteKontrolle")
-                        .WithMany()
-                        .HasForeignKey("LetzteKontrolleID")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("LetzteKontrolle");
-                });
-
-            modelBuilder.Entity("DotNet8.WebApi.Entities.Kontrolle", b =>
-                {
-                    b.HasOne("DotNet8.WebApi.Entities.Baum", "Baum")
-                        .WithMany("Kontrollen")
-                        .HasForeignKey("BaumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Baum");
-                });
-
-            modelBuilder.Entity("DotNet8.WebApi.Entities.Baum", b =>
-                {
-                    b.Navigation("Kontrollen");
                 });
 #pragma warning restore 612, 618
         }

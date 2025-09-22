@@ -5,6 +5,5 @@
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string ImgAsText { get; set; } = string.Empty;
-        public int BildId { get; set; }
     }
 }

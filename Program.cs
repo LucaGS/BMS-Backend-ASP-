@@ -33,7 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-
+builder.Services.AddScoped<IGruenFlaecheService, GruenFlaecheService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
