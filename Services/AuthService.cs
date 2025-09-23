@@ -1,4 +1,4 @@
-﻿using DotNet8.WebApi.Data;
+using DotNet8.WebApi.Data;
 using DotNet8.WebApi.Dtos;
 using DotNet8.WebApi.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -55,8 +55,9 @@ namespace DotNet8.WebApi.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["AppSettings:Token"]!));

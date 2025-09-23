@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using DotNet8.WebApi.Dtos;
 using DotNet8.WebApi.Services;
-using DotNet8.WebApi.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
 namespace DotNet8.WebApi.Controllers
 {
     [ApiController]
@@ -13,16 +14,25 @@ namespace DotNet8.WebApi.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateGruenFlaeche(CreateGruenFlaecheDto request)
         {
-            // Benutzer-ID aus dem JWT-Token im Header extrahieren
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type == "userid" || c.Type == "id");
-            if (userIdClaim == null)
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdValue))
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type == "userid" || c.Type == "Id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("Benutzer-ID nicht im Token gefunden.");
+                }
+
+                userIdValue = userIdClaim.Value;
+            }
+
+            if (!int.TryParse(userIdValue, out var userId))
             {
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
-            var userId = userIdClaim.Value;
-            GruenFlaeche gruenFlaeche = await gruenFlaecheService.CreateGruenFlaeche(request, int.Parse(userId));
-            return Ok(gruenFlaeche);
 
+            var gruenFlaeche = await gruenFlaecheService.CreateGruenFlaeche(request, userId);
+            return Ok(gruenFlaeche);
         }
     }
 }
