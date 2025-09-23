@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DotNet8.WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250922075946_new")]
-    partial class @new
+    [Migration("20250922143006_AddGruenFlaechen")]
+    partial class AddGruenFlaechen
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,6 +92,9 @@ namespace DotNet8.WebApi.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

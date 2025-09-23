@@ -90,6 +90,9 @@ namespace DotNet8.WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("GruenFlaechen");

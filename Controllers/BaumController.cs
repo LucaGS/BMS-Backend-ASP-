@@ -13,8 +13,14 @@ namespace DotNet8.WebApi.Controllers
         [HttpPost("/create")]
         public async Task<ActionResult<int>> CreateBaum(CreateBaumDto newBaum)
         {
+
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdValue))
+
+            // Benutzer-ID aus dem JWT-Token im Header extrahieren
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type == "userid" || c.Type == "Id");
+            if (userIdClaim == null)
+
             {
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
