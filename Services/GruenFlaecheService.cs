@@ -5,20 +5,22 @@
     using DotNet8.WebApi.Entities;
     public class GruenFlaecheService(AppDbContext context, IConfiguration configuration) : IGruenFlaecheService
     {
-        public Task<GruenFlaeche> CreateGruenFlaeche(CreateGruenFlaecheDto request)
+        public Task<GruenFlaeche> CreateGruenFlaeche(CreateGruenFlaecheDto request, int userId)
         {
             GruenFlaeche gruenFlaeche = new GruenFlaeche
             {
                 Name = request.Name,
+                userId = userId,
 
             };
             context.GruenFlaechen.Add(gruenFlaeche);
             context.SaveChanges();
             return Task.FromResult(gruenFlaeche);
         }
-        public Task<GruenFlaeche[]> GetGruenFlaechen()
+        public Task<List<GruenFlaeche>> GetGruenFlaechen(int userId)
         {
-            throw new NotImplementedException();
+            var gruenFlaechen = context.GruenFlaechen.Where(g => g.userId == userId).ToList();
+            return Task.FromResult(gruenFlaechen);
         }
     }
 }

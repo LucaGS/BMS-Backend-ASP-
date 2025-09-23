@@ -13,7 +13,14 @@ namespace DotNet8.WebApi.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateGruenFlaeche(CreateGruenFlaecheDto request)
         {
-            GruenFlaeche gruenFlaeche = await gruenFlaecheService.CreateGruenFlaeche(request);
+            // Benutzer-ID aus dem JWT-Token im Header extrahieren
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type == "userid" || c.Type == "id");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("Benutzer-ID nicht im Token gefunden.");
+            }
+            var userId = userIdClaim.Value;
+            GruenFlaeche gruenFlaeche = await gruenFlaecheService.CreateGruenFlaeche(request, int.Parse(userId));
             return Ok(gruenFlaeche);
 
         }

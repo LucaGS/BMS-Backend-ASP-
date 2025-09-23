@@ -50,25 +50,25 @@ namespace DotNet8.WebApi.Services
         }
 
 
-        private String CreateToken(User user)
+        private string CreateToken(User user)
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["AppSettings:Token"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
-            var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: configuration.GetValue<string>("AppSettings:Audience"),
+            var token = new JwtSecurityToken(
+                issuer: configuration["AppSettings:Issuer"],
+                audience: configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(30),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+                signingCredentials: creds
+            );
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
