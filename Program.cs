@@ -32,6 +32,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGruenFlaecheService, GruenFlaecheService>();
 builder.Services.AddCors(options =>
@@ -54,6 +56,7 @@ app.MapScalarApiReference(
 );
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
 app.MapControllers();
