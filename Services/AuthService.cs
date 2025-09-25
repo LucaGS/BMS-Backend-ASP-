@@ -11,7 +11,7 @@ using System.Text;
 namespace DotNet8.WebApi.Services
 {
     public class AuthService(AppDbContext context , IConfiguration configuration) : IAuthService
-    {
+    {   
         public async Task<string?> LoginAsync(UserDto request)
         {
             var user = await context.Users
