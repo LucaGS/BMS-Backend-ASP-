@@ -1,26 +1,30 @@
-﻿namespace DotNet8.WebApi.Services
+namespace DotNet8.WebApi.Services
 {
     using DotNet8.WebApi.Data;
     using DotNet8.WebApi.Dtos;
     using DotNet8.WebApi.Entities;
-    public class GruenFlaecheService(AppDbContext context, IConfiguration configuration) : IGruenFlaecheService
+    using Microsoft.EntityFrameworkCore;
+
+    public class GruenFlaecheService(AppDbContext context) : IGruenFlaecheService
     {
-        public Task<GruenFlaeche> CreateGruenFlaeche(CreateGruenFlaecheDto request, int userId)
+        public async Task<GruenFlaeche> CreateGruenFlaeche(CreateGruenFlaecheDto request, int userId)
         {
-            GruenFlaeche gruenFlaeche = new GruenFlaeche
+            var gruenFlaeche = new GruenFlaeche
             {
                 Name = request.Name,
                 userId = userId,
-
             };
+
             context.GruenFlaechen.Add(gruenFlaeche);
-            context.SaveChanges();
-            return Task.FromResult(gruenFlaeche);
+            await context.SaveChangesAsync();
+            return gruenFlaeche;
         }
-        public Task<List<GruenFlaeche>> GetGruenFlaechen(int userId)
+
+        public async Task<List<GruenFlaeche>> GetGruenFlaechen(int userId)
         {
-            var gruenFlaechen = context.GruenFlaechen.Where(g => g.userId == userId).ToList();
-            return Task.FromResult(gruenFlaechen);
+            return await context.GruenFlaechen
+                .Where(g => g.userId == userId)
+                .ToListAsync();
         }
     }
 }
