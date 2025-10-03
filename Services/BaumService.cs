@@ -7,7 +7,7 @@ namespace DotNet8.WebApi.Services
     public class BaumService(AppDbContext context, IConfiguration configuration) : IBaumService
     {
         
-        public Task<int> CreateBaumAsync(CreateBaumDto request, int userId)
+        public Task<Baum> CreateBaumAsync(CreateBaumDto request, int userId)
         {
            Baum baum = new Baum            {
                 UserId = userId,
@@ -18,14 +18,19 @@ namespace DotNet8.WebApi.Services
                 Laengengrad = request.Laengengrad
            };
             context.Baeume.Add(baum);
-            context.SaveChanges();
-            return Task.FromResult(baum.Id ?? 0);
+            context.SaveChangesAsync();
+            return Task.FromResult(baum);
 
         }
         public Task<List<Baum>> GetAllBaeumeAsync(int userId)
         {
             var baeume = context.Baeume.Where(b => b.UserId == userId).ToList();
             return Task.FromResult(baeume);
+        }
+        public object? GetBaeumeByGruenFlaechenIdAsync(int gruenFlaechenId, int userId)
+        {
+            var baeume = context.Baeume.Where(b => b.GruenFlächenId == gruenFlaechenId && b.UserId == userId).ToList();
+            return baeume;
         }
 
     }

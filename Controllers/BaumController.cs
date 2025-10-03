@@ -11,17 +11,17 @@ namespace DotNet8.WebApi.Controllers
     [Authorize]
     public class BaumController(ICurrentUserService currentUserService, IBaumService baumService ): ControllerBase
     {
-        [HttpPost("/create")]
-        public ActionResult<int> CreateBaum(CreateBaumDto newBaum)
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateBaum(CreateBaumDto newBaum)
         {
             if (!currentUserService.TryGetUserId(out var userId))
             {
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
-            var createdBaumId  =  baumService.CreateBaumAsync(newBaum, userId);
-            return Ok(createdBaumId);
+              return Ok(baumService.CreateBaumAsync(newBaum, userId));
         }
-        [HttpGet("/GetAll")]
+        //Todo: Fix why this returns Baum Entities with small a in art 
+        [HttpGet("GetAll")]
         public ActionResult<List<Baum>> GetAllBaeume()
         {
             if(!currentUserService.TryGetUserId(out var userId))
@@ -29,6 +29,16 @@ namespace DotNet8.WebApi.Controllers
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
             return Ok(baumService.GetAllBaeumeAsync(userId));
+        }
+
+        [HttpGet("GetByGruenFlaechenId/{gruenFlaechenId}")]
+        public ActionResult<List<Baum>> GetBaeumeByGruenFlaechenId(int gruenFlaechenId)
+        {
+            if(!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("Benutzer-ID nicht im Token gefunden.");
+            }
+            return Ok(baumService.GetBaeumeByGruenFlaechenIdAsync(gruenFlaechenId, userId));
         }
     }
 }
