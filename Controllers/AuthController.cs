@@ -10,15 +10,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 
 namespace DotNet8.WebApi.Controllers
 {
     //Handels all request regarding Authentication
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors("AllowFrontend")]
     public class AuthController(IAuthService authService) : ControllerBase
     {
-        [HttpPost("register")]
+        [HttpPost("Register")]
+        [HttpOptions("Register")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
             var user = await authService.RegisterAsync(request);
@@ -29,7 +32,8 @@ namespace DotNet8.WebApi.Controllers
             var token = await authService.LoginAsync(request);
             return Ok(new { token });
         }
-        [HttpPost("login")]
+        [HttpPost("Login")]
+        [HttpOptions("Login")]
         public async Task<ActionResult<string>>Login(UserDto request)
         {
             var token = await authService.LoginAsync(request);
