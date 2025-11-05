@@ -17,7 +17,7 @@ namespace DotNet8.WebApi.Controllers
     //Handels all request regarding Authentication
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowFrontend")]
+    [EnableCors("AllowAll")]
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("Register")]
