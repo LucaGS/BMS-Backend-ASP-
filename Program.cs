@@ -7,35 +7,44 @@ using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Scalar.AspNetCore;
 using System.Text;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
+// ---------------------------------------------------------
+// CORS: ALLES erlauben (keine Limits, keine Credentials)
+// ---------------------------------------------------------
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("*")
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .WithExposedHeaders("*");
-    });
+    options.AddPolicy("AllowAll", policy =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
 });
 
+// MVC / Swagger / Tools
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
-var connectionString = $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
-                      $"Port={Environment.GetEnvironmentVariable("PGPORT")};" +
-                      $"Database={Environment.GetEnvironmentVariable("PGDATABASE")};" +
-                      $"Username={Environment.GetEnvironmentVariable("PGUSER")};" +
-                      $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" +
-                      $"Trust Server Certificate=true";
+// ---------------------------------------------------------
+// Datenbank
+// ---------------------------------------------------------
+var connectionString =
+    $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
+    $"Port={Environment.GetEnvironmentVariable("PGPORT")};" +
+    $"Database={Environment.GetEnvironmentVariable("PGDATABASE")};" +
+    $"Username={Environment.GetEnvironmentVariable("PGUSER")};" +
+    $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" +
+    $"Trust Server Certificate=true";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// ---------------------------------------------------------
+// Authentifizierung / Autorisierung (unverändert)
+// ---------------------------------------------------------
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -54,48 +63,51 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// ---------------------------------------------------------
+// DI-Services
+// ---------------------------------------------------------
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGreenAreaService, GreenAreaService>();
 builder.Services.AddScoped<ITreeService, TreeService>();
 builder.Services.AddScoped<IInspectionService, InspectionService>();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy => policy
-            .SetIsOriginAllowed(_ => true) // Erlaubt alle Origins im Development
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
-});
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
-// Apply migrations automatically
+// ---------------------------------------------------------
+// DB-Migrationen automatisch anwenden
+// ---------------------------------------------------------
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-// Configure the HTTP request pipeline
+// ---------------------------------------------------------
+// Pipeline
+// ---------------------------------------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(opt => opt.RouteTemplate = "openapi/{documentName}.json");
-    app.MapScalarApiReference(
-        opt => {
-            opt.Title = "WebApi with Scalar Example";
-            opt.Theme = ScalarTheme.BluePlanet;
-            opt.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
-        }
-    );
+    app.MapScalarApiReference(opt =>
+    {
+        opt.Title = "WebApi with Scalar Example";
+        opt.Theme = ScalarTheme.BluePlanet;
+        opt.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
+    });
 }
 
-app.UseCors("AllowFrontend");
+// CORS global aktivieren (alle Endpunkte)
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Add a health check endpoint
+// Preflight-OPTIONS pauschal mit 200 beantworten (verhindert 405 auf Preflights)
+app.MapMethods("{*path}", new[] { "OPTIONS" }, () => Results.Ok())
+   .WithDisplayName("CORS Preflight");
+
+// Healthcheck + Controller
 app.MapGet("/", () => "BMS Backend API is running!");
 app.MapControllers();
 
