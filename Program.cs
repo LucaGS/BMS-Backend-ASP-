@@ -68,9 +68,17 @@ app.MapScalarApiReference(
     }
 );
 
-app.UseHttpsRedirection();
+if (!builder.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
 app.MapControllers();
+
+// Get the PORT from Railway environment variable
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+app.Urls.Add($"http://0.0.0.0:{port}");
+
 app.Run();
