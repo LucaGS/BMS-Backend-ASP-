@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotNet8.WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgreSQL : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -102,16 +102,16 @@ namespace DotNet8.WebApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "TreeImages");
-
-            migrationBuilder.DropTable(
-                name: "Trees");
-
-            migrationBuilder.DropTable(
                 name: "GreenAreas");
 
             migrationBuilder.DropTable(
                 name: "Inspections");
+
+            migrationBuilder.DropTable(
+                name: "TreeImages");
+
+            migrationBuilder.DropTable(
+                name: "Trees");
 
             migrationBuilder.DropTable(
                 name: "Users");
