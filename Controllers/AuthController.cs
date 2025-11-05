@@ -1,6 +1,7 @@
 ﻿using DotNet8.WebApi.Dtos;
 using DotNet8.WebApi.Entities;
 using DotNet8.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DotNet8.WebApi.Controllers
 {
-    //Handels als request regarding Authentication
+    //Handels all request regarding Authentication
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
@@ -38,6 +39,9 @@ namespace DotNet8.WebApi.Controllers
             }
             return Ok(new {token});
         }
-        
+
+       
+
+
     }
 }

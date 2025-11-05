@@ -9,7 +9,7 @@ namespace DotNet8.WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class BaumController(ICurrentUserService currentUserService, IBaumService baumService ): ControllerBase
+    public class BaumController(ICurrentUserService currentUserService, IBaumService baumService) : ControllerBase
     {
         [HttpPost("Create")]
         public async Task<IActionResult> CreateBaum(CreateBaumDto newBaum)
@@ -18,27 +18,37 @@ namespace DotNet8.WebApi.Controllers
             {
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
-              return Ok(baumService.CreateBaumAsync(newBaum, userId));
+
+            var createdBaum = await baumService.CreateBaumAsync(newBaum, userId);
+            if(createdBaum == null)
+            {
+                return BadRequest("Ein Baum mit dieser Nummer existiert bereits.");
+            }
+            return Ok(createdBaum);
         }
-        //Todo: Fix why this returns Baum Entities with small a in art 
+
         [HttpGet("GetAll")]
-        public ActionResult<List<Baum>> GetAllBaeume()
+        public async Task<ActionResult<List<Baum>>> GetAllBaeume()
         {
-            if(!currentUserService.TryGetUserId(out var userId))
+            if (!currentUserService.TryGetUserId(out var userId))
             {
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
-            return Ok(baumService.GetAllBaeumeAsync(userId));
+
+            var baeume = await baumService.GetAllBaeumeAsync(userId);
+            return Ok(baeume);
         }
 
         [HttpGet("GetByGruenFlaechenId/{gruenFlaechenId}")]
-        public ActionResult<List<Baum>> GetBaeumeByGruenFlaechenId(int gruenFlaechenId)
+        public async Task<ActionResult<List<Baum>>> GetBaeumeByGruenFlaechenId(int gruenFlaechenId)
         {
-            if(!currentUserService.TryGetUserId(out var userId))
+            if (!currentUserService.TryGetUserId(out var userId))
             {
                 return Unauthorized("Benutzer-ID nicht im Token gefunden.");
             }
-            return Ok(baumService.GetBaeumeByGruenFlaechenIdAsync(gruenFlaechenId, userId));
+
+            var baeume = await baumService.GetBaeumeByGruenFlaechenIdAsync(gruenFlaechenId, userId);
+            return Ok(baeume);
         }
     }
 }

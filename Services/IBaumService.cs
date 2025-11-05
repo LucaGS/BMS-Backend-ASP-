@@ -15,5 +15,6 @@ namespace DotNet8.WebApi.Services
         /// <param name="art">The species or type of the tree.</param>
         Task<Baum> CreateBaumAsync(CreateBaumDto request, int userId);
         Task<List<Baum>> GetAllBaeumeAsync(int userId);
+        Task<List<Baum>> GetBaeumeByGruenFlaechenIdAsync(int gruenFlaechenId, int userId);
     }
 }

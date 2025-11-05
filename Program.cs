@@ -3,6 +3,7 @@ using DotNet8.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Scalar.AspNetCore;
 using System.Text;
 
@@ -15,7 +16,7 @@ builder.Services.AddHttpContextAccessor();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -39,6 +40,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGruenFlaecheService, GruenFlaecheService>();
 builder.Services.AddScoped<IBaumService, BaumService> ();
+builder.Services.AddScoped<IKontrolleService, KontrolleService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
