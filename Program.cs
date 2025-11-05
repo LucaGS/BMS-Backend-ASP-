@@ -59,26 +59,25 @@ builder.Services.AddCors(options =>
 
 WebApplication app = builder.Build();
 
-app.UseSwagger(opt => opt.RouteTemplate = "openapi/{documentName}.json");
-app.MapScalarApiReference(
-    opt => {
-        opt.Title = "WebApi with Scalar Example";
-        opt.Theme = ScalarTheme.BluePlanet;
-        opt.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
-    }
-);
-
-if (!builder.Environment.IsProduction())
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();
+    app.UseSwagger(opt => opt.RouteTemplate = "openapi/{documentName}.json");
+    app.MapScalarApiReference(
+        opt => {
+            opt.Title = "WebApi with Scalar Example";
+            opt.Theme = ScalarTheme.BluePlanet;
+            opt.DefaultHttpClient = new(ScalarTarget.Http, ScalarClient.Http11);
+        }
+    );
 }
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowFrontend");
-app.MapControllers();
 
-// Get the PORT from Railway environment variable
-var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
-app.Urls.Add($"http://0.0.0.0:{port}");
+// Add a health check endpoint
+app.MapGet("/", () => "BMS Backend API is running!");
+app.MapControllers();
 
 app.Run();
