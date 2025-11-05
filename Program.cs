@@ -10,16 +10,14 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // ---------------------------------------------------------
-// CORS: ALLES erlauben (keine Limits, keine Credentials)
+// CORS: Allow everything - needed for Railway deployment
 // ---------------------------------------------------------
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-    );
+    options.AddPolicy("AllowAll", policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
 // MVC / Swagger / Tools
@@ -43,7 +41,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // ---------------------------------------------------------
-// Authentifizierung / Autorisierung (unverändert)
+// Authentifizierung / Autorisierung (unverÃ¤ndert)
 // ---------------------------------------------------------
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
