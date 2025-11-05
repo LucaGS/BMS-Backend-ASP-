@@ -38,9 +38,9 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IGruenFlaecheService, GruenFlaecheService>();
-builder.Services.AddScoped<IBaumService, BaumService> ();
-builder.Services.AddScoped<IKontrolleService, KontrolleService>();
+builder.Services.AddScoped<IGreenAreaService, GreenAreaService>();
+builder.Services.AddScoped<ITreeService, TreeService>();
+builder.Services.AddScoped<IInspectionService, InspectionService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",

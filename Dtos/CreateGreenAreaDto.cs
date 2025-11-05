@@ -1,8 +1,7 @@
 namespace DotNet8.WebApi.Dtos
 {
-    public class CreateGruenFlaecheDto
+    public class CreateGreenAreaDto
     {
         public string Name { get; set; } = string.Empty;
     }
 }
-    

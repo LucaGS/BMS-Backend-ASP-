@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -13,67 +13,67 @@ namespace DotNet8.WebApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Baeume",
+                name: "GreenAreas",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false),
-                    GruenFlächenId = table.Column<int>(type: "integer", nullable: false),
-                    Nummer = table.Column<int>(type: "integer", nullable: false),
-                    Art = table.Column<string>(type: "text", nullable: false),
-                    LetzteKontrolleID = table.Column<int>(type: "integer", nullable: true),
-                    Laengengrad = table.Column<double>(type: "double precision", nullable: false),
-                    Breitengrad = table.Column<double>(type: "double precision", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Baeume", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bilder",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ImgAsText = table.Column<string>(type: "text", nullable: false),
-                    Baumid = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bilder", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "GruenFlaechen",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    userId = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    ImgAsText = table.Column<string>(type: "text", nullable: false)
+                    ImageBase64 = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GruenFlaechen", x => x.Id);
+                    table.PrimaryKey("PK_GreenAreas", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Kontrollen",
+                name: "Inspections",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Datum = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Verkehrssicher = table.Column<bool>(type: "boolean", nullable: false),
-                    BaumId = table.Column<int>(type: "integer", nullable: false),
+                    PerformedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsSafeForTraffic = table.Column<bool>(type: "boolean", nullable: false),
+                    TreeId = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Kontrollen", x => x.Id);
+                    table.PrimaryKey("PK_Inspections", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TreeImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ImageBase64 = table.Column<string>(type: "text", nullable: false),
+                    TreeId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TreeImages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Trees",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    GreenAreaId = table.Column<int>(type: "integer", nullable: false),
+                    Number = table.Column<int>(type: "integer", nullable: false),
+                    Species = table.Column<string>(type: "text", nullable: false),
+                    LastInspectionId = table.Column<int>(type: "integer", nullable: true),
+                    Longitude = table.Column<double>(type: "double precision", nullable: false),
+                    Latitude = table.Column<double>(type: "double precision", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Trees", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,9 +92,9 @@ namespace DotNet8.WebApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Baeume_UserId_Nummer",
-                table: "Baeume",
-                columns: new[] { "UserId", "Nummer" },
+                name: "IX_Trees_UserId_Number",
+                table: "Trees",
+                columns: new[] { "UserId", "Number" },
                 unique: true);
         }
 
@@ -102,16 +102,16 @@ namespace DotNet8.WebApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Baeume");
+                name: "TreeImages");
 
             migrationBuilder.DropTable(
-                name: "Bilder");
+                name: "Trees");
 
             migrationBuilder.DropTable(
-                name: "GruenFlaechen");
+                name: "GreenAreas");
 
             migrationBuilder.DropTable(
-                name: "Kontrollen");
+                name: "Inspections");
 
             migrationBuilder.DropTable(
                 name: "Users");

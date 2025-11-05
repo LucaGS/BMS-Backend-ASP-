@@ -6,10 +6,10 @@ namespace DotNet8.WebApi.Data
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<Baum> Baeume { get; set; }
-        public DbSet<Kontrolle> Kontrollen { get; set; }
-        public DbSet<Bilder> Bilder { get; set; }
-        public DbSet<GruenFlaeche> GruenFlaechen { get; set; }   
+        public DbSet<Tree> Trees { get; set; }
+        public DbSet<Inspection> Inspections { get; set; }
+        public DbSet<TreeImage> TreeImages { get; set; }
+        public DbSet<GreenArea> GreenAreas { get; set; }
 
     }
 }
