@@ -15,8 +15,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
+var connectionString = $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
+                      $"Port={Environment.GetEnvironmentVariable("PGPORT")};" +
+                      $"Database={Environment.GetEnvironmentVariable("PGDATABASE")};" +
+                      $"Username={Environment.GetEnvironmentVariable("PGUSER")};" +
+                      $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" +
+                      $"Trust Server Certificate=true";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
