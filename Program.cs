@@ -9,17 +9,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------------------------------------------------------
-// CORS: Allow everything - needed for Railway deployment
-// ---------------------------------------------------------
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy => policy
-        .AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod());
-});
-
 // MVC / Swagger / Tools
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -41,7 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // ---------------------------------------------------------
-// Authentifizierung / Autorisierung (unverändert)
+// Authentifizierung / Autorisierung 
 // ---------------------------------------------------------
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -95,18 +84,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// CORS global aktivieren (alle Endpunkte)
-app.UseCors("AllowAll");
-
+// Middleware order is important for auth
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Preflight-OPTIONS pauschal mit 200 beantworten (verhindert 405 auf Preflights)
-app.MapMethods("{*path}", new[] { "OPTIONS" }, () => Results.Ok())
-   .WithDisplayName("CORS Preflight");
-
-// Healthcheck + Controller
-app.MapGet("/", () => "BMS Backend API is running!");
+// Map endpoints
 app.MapControllers();
+app.MapGet("/", () => "BMS Backend API is running!");
 
 app.Run();
