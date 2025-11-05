@@ -18,7 +18,7 @@ namespace DotNet8.WebApi.Controllers
     [ApiController]
     public class AuthController(IAuthService authService) : ControllerBase
     {
-        [HttpPost("/register")]
+        [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
             var user = await authService.RegisterAsync(request);
@@ -29,7 +29,7 @@ namespace DotNet8.WebApi.Controllers
             var token = await authService.LoginAsync(request);
             return Ok(new { token });
         }
-        [HttpPost("/login")]
+        [HttpPost("login")]
         public async Task<ActionResult<string>>Login(UserDto request)
         {
             var token = await authService.LoginAsync(request);

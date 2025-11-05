@@ -52,9 +52,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy => policy
-            .AllowAnyOrigin()
+            .SetIsOriginAllowed(_ => true) // Erlaubt alle Origins im Development
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 WebApplication app = builder.Build();
@@ -79,9 +80,9 @@ if (app.Environment.IsDevelopment())
     );
 }
 
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowFrontend");
 
 // Add a health check endpoint
 app.MapGet("/", () => "BMS Backend API is running!");
