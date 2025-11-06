@@ -111,7 +111,7 @@ app.Use(async (context, next) =>
     {
         var allowedMethods = context.Response.Headers.Allow;
         var allowedDescription = allowedMethods.Count > 0
-            ? string.Join(", ", allowedMethods)
+            ? string.Join(", ", allowedMethods.ToArray())
             : "(no Allow header was set)";
 
         app.Logger.LogWarning(
