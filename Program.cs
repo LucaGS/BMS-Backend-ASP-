@@ -14,6 +14,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod());
+});
 
 // ---------------------------------------------------------
 // Datenbank
@@ -85,6 +92,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Middleware order is important for auth
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
