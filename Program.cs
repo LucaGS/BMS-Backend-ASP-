@@ -1,6 +1,7 @@
 using DotNet8.WebApi.Data;
 using DotNet8.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
@@ -33,8 +34,16 @@ var connectionString =
     $"Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")};" +
     $"Trust Server Certificate=true";
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("BmsDevelopmentDb"));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
 
 // ---------------------------------------------------------
 // Authentifizierung / Autorisierung 
@@ -71,8 +80,9 @@ var app = builder.Build();
 // ---------------------------------------------------------
 // DB-Migrationen automatisch anwenden
 // ---------------------------------------------------------
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
@@ -93,6 +103,24 @@ if (app.Environment.IsDevelopment())
 
 // Middleware order is important for auth
 app.UseRouting();
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == StatusCodes.Status405MethodNotAllowed)
+    {
+        var allowedMethods = context.Response.Headers.Allow;
+        var allowedDescription = allowedMethods.Count > 0
+            ? string.Join(", ", allowedMethods)
+            : "(no Allow header was set)";
+
+        app.Logger.LogWarning(
+            "Request {Method} {Path} was rejected with 405. Allowed methods: {AllowedMethods}",
+            context.Request.Method,
+            context.Request.Path,
+            allowedDescription);
+    }
+});
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
@@ -102,3 +130,5 @@ app.MapControllers();
 app.MapGet("/", () => "BMS Backend API is running!");
 
 app.Run();
+
+public partial class Program;
