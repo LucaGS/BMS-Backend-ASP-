@@ -92,6 +92,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Middleware order is important for auth
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
