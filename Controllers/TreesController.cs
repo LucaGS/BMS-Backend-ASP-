@@ -9,7 +9,7 @@ namespace DotNet8.WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class TreeController(ICurrentUserService currentUserService, ITreeService treeService) : ControllerBase
+    public class TreesController(ICurrentUserService currentUserService, ITreeService treeService) : ControllerBase
     {
         [HttpPost("Create")]
         public async Task<IActionResult> CreateTree(CreateTreeDto newTree)
