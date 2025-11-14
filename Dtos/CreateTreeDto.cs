@@ -7,10 +7,10 @@ namespace DotNet8.WebApi.Dtos
         public string Species { get; set; } = string.Empty;
         public double Longitude { get; set; }
         public double Latitude { get; set; }
-        public double TreeHeightMeters { get; set; }
-        public double CrownDiameterMeters { get; set; }
-        public double CrownBaseHeightMeters { get; set; }
-        public int TrunkCount { get; set; }
-        public int TrunkInclinationDegrees { get; set; }
+        public double TreeSizeMeters { get; set; }
+        public double CrowndiameterMeters { get; set; }
+        public double CrownAttachmentHeightMeters { get; set; }
+        public int NumberOfTrunks { get; set; }
+        public int TrunkInclination { get; set; }
     }
 }
