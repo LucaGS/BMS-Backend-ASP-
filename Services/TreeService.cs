@@ -22,11 +22,11 @@ namespace DotNet8.WebApi.Services
                 GreenAreaId = request.GreenAreaId,
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
-                TreeSizeMeters = request.TreeSizeMeters,
-                CrowndiameterMeters = request.CrowndiameterMeters,
-                CrownAttachmentHeightMeters = request.CrownAttachmentHeightMeters,
-                NumberOfTrunks = request.NumberOfTrunks,
-                TrunkInclination = request.TrunkInclination
+                TreeHeightMeters = request.TreeHeightMeters,
+                CrownDiameterMeters = request.CrownDiameterMeters,
+                CrownBaseHeightMeters = request.CrownBaseHeightMeters,
+                TrunkCount = request.TrunkCount,
+                TrunkInclinationDegrees = request.TrunkInclinationDegrees
             };
 
             await context.Trees.AddAsync(tree);
