@@ -17,10 +17,21 @@ namespace DotNet8.WebApi.Services
                 UserId = userId
             };
 
+            var tree = await context.Trees.FindAsync(request.TreeId);
+            if (tree == null)
+            {
+                throw new InvalidOperationException($"Tree with id {request.TreeId} not found.");
+            }
+
             context.Inspections.Add(inspection);
+
+            tree.LastInspectionId = inspection.Id; 
+
             await context.SaveChangesAsync();
+
             return inspection;
         }
+
 
         public Task<bool> DeleteInspectionAsync(int inspectionId, int userId)
         {

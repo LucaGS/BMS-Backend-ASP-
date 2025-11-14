@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using DotNet8.WebApi.Dtos;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Hosting;
 
