@@ -15,34 +15,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
-var configuredCorsOrigins = Environment
-    .GetEnvironmentVariable("CORS_ALLOWED_ORIGINS")
-    ?.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-configuredCorsOrigins ??= builder.Configuration
-    .GetSection("Cors:AllowedOrigins")
-    .Get<string[]>();
-
-const string CorsPolicyName = "ConfiguredCorsPolicy";
-
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(CorsPolicyName, policy =>
-    {
-        if (configuredCorsOrigins is { Length: > 0 })
-        {
-            policy.WithOrigins(configuredCorsOrigins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        }
-        else
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        }
-    });
+    options.AddPolicy("AllowAll", policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
 // ---------------------------------------------------------
@@ -143,7 +121,7 @@ app.Use(async (context, next) =>
             allowedDescription);
     }
 });
-app.UseCors(CorsPolicyName);
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
