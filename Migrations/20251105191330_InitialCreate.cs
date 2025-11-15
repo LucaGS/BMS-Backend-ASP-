@@ -20,7 +20,8 @@ namespace DotNet8.WebApi.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    ImageBase64 = table.Column<string>(type: "text", nullable: false)
+                    Longitude = table.Column<double>(type: "double precision", nullable: false),
+                    Latitude = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
