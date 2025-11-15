@@ -12,7 +12,10 @@ namespace DotNet8.WebApi.Services
             var greenArea = new GreenArea
             {
                 Name = request.Name,
-                UserId = userId
+                UserId = userId,
+                Longitude = request.Longitude,
+                Latitude = request.Latitude
+
             };
 
             context.GreenAreas.Add(greenArea);
