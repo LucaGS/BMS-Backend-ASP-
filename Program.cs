@@ -58,11 +58,13 @@ var connectionString =
 
 if (builder.Environment.IsDevelopment())
 {
+    // Dev: InMemory – keine Migration nötig / möglich
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseInMemoryDatabase("BmsDevelopmentDb"));
 }
 else
 {
+    // Prod/Stage: PostgreSQL – hier arbeiten wir mit Migrationen
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(connectionString));
 }
@@ -100,12 +102,15 @@ builder.Services.AddScoped<IInspectionService, InspectionService>();
 var app = builder.Build();
 
 // ---------------------------------------------------------
-// DB-Migrationen automatisch anwenden
+// DB-Migrationen automatisch anwenden (nur bei echter DB)
 // ---------------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // WICHTIG: wendet ALLE bestehenden Migrationen an,
+    // erstellt aber KEINE neuen Migrationen.
     db.Database.Migrate();
 }
 

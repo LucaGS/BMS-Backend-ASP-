@@ -69,7 +69,12 @@ namespace DotNet8.WebApi.Migrations
                     Species = table.Column<string>(type: "text", nullable: false),
                     LastInspectionId = table.Column<int>(type: "integer", nullable: true),
                     Longitude = table.Column<double>(type: "double precision", nullable: false),
-                    Latitude = table.Column<double>(type: "double precision", nullable: false)
+                    Latitude = table.Column<double>(type: "double precision", nullable: false),
+                    CrownDiameterMeters = table.Column<double>(type: "double precision", nullable: false),
+                    CrownAttachmentHeightMeters = table.Column<double>(type: "double precision", nullable: false),
+                    NumberOfTrunks = table.Column<int>(type: "integer", nullable: false),
+                    TrunkInclination = table.Column<double>(type: "double precision", nullable: false)
+
                 },
                 constraints: table =>
                 {
