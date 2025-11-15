@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotNet8.WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class GreenAreaUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,7 +22,6 @@ namespace DotNet8.WebApi.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Longitude = table.Column<double>(type: "double precision", nullable: false),
                     Latitude = table.Column<double>(type: "double precision", nullable: false)
-
                 },
                 constraints: table =>
                 {
@@ -76,7 +75,6 @@ namespace DotNet8.WebApi.Migrations
                     CrownAttachmentHeightMeters = table.Column<double>(type: "double precision", nullable: false),
                     NumberOfTrunks = table.Column<int>(type: "integer", nullable: false),
                     TrunkInclination = table.Column<double>(type: "double precision", nullable: false)
-
                 },
                 constraints: table =>
                 {
