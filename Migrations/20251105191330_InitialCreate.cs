@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mime;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -45,17 +46,20 @@ namespace DotNet8.WebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TreeImages",
+                name: "Images",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ImageBase64 = table.Column<string>(type: "text", nullable: false),
-                    TreeId = table.Column<int>(type: "integer", nullable: false)
+                    TreeId = table.Column<int>(type: "integer", nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: false),
+                    ContentType = table.Column<string>(type: "text", nullable: false),
+                    Data = table.Column<byte[]>(type: "bytea", nullable: false)
+
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TreeImages", x => x.Id);
+                    table.PrimaryKey("PK_Images", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
