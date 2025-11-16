@@ -10,6 +10,7 @@ namespace DotNet8.WebApi.Data
         public DbSet<Inspection> Inspections { get; set; }
         public DbSet<TreeImage> TreeImages { get; set; }
         public DbSet<GreenArea> GreenAreas { get; set; }
+        public DbSet<Image> Images { get; set; }
 
     }
 }
