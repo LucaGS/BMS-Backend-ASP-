@@ -98,6 +98,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGreenAreaService, GreenAreaService>();
 builder.Services.AddScoped<ITreeService, TreeService>();
 builder.Services.AddScoped<IInspectionService, InspectionService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 
 var app = builder.Build();
 
