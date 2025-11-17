@@ -11,7 +11,7 @@ namespace DotNet8.WebApi.Controllers
     public class ImagesController(ICurrentUserService currentUserService , IImageService imageService) : Controller
     {
 
-        [HttpGet("GetImages")]
+        [HttpGet("GetImages/{treeId}")]
         public async Task<IActionResult> GetImages(int treeId)
         {
             if (!currentUserService.TryGetUserId(out var userId))
