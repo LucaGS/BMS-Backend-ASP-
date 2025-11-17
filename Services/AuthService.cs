@@ -60,7 +60,7 @@ namespace DotNet8.WebApi.Services
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["AppSettings:Token"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET_KEY")!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
             var token = new JwtSecurityToken(
                 issuer: configuration["AppSettings:Issuer"],
