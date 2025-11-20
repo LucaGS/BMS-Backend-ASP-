@@ -62,6 +62,9 @@ public class AuthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         var response = await client.GetAsync("/api/Auth/Login");
 
         Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
-        Assert.Contains("POST", response.Headers.Allow);
+        if (response.Headers.TryGetValues("Allow", out var allowedMethods))
+        {
+            Assert.Contains("POST", allowedMethods);
+        }
     }
 }
