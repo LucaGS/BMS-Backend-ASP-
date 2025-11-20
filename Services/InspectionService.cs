@@ -25,7 +25,9 @@ namespace DotNet8.WebApi.Services
 
             context.Inspections.Add(inspection);
 
-            tree.LastInspectionId = inspection.Id; 
+            await context.SaveChangesAsync();
+
+            tree.LastInspectionId = inspection.Id;
 
             await context.SaveChangesAsync();
 
