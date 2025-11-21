@@ -26,7 +26,18 @@ public class InspectionServiceTests
         await context.SaveChangesAsync();
 
         var service = new InspectionService(context);
-        var request = new CreateInspectionDto { TreeId = tree.Id, IsSafeForTraffic = true };
+        var request = new CreateInspectionDto
+        {
+            TreeId = tree.Id,
+            IsSafeForTraffic = true,
+            NewInspectionIntervall = 12,
+            DevelopmentalStage = "Mature",
+            DamageLevel = 2,
+            StandStability = 3,
+            BreakageSafety = 4,
+            Vitality = 5,
+            Description = "No issues"
+        };
         var before = DateTime.UtcNow;
 
         var inspection = await service.CreateInspectionAsync(request, userId: 1);
@@ -35,6 +46,13 @@ public class InspectionServiceTests
         Assert.NotNull(inspection);
         Assert.True(inspection.Id > 0);
         Assert.InRange(inspection.PerformedAt, before.AddSeconds(-1), after.AddSeconds(1));
+        Assert.Equal(request.NewInspectionIntervall, inspection.NewInspectionIntervall);
+        Assert.Equal(request.DevelopmentalStage, inspection.DevelopmentalStage);
+        Assert.Equal(request.DamageLevel, inspection.DamageLevel);
+        Assert.Equal(request.StandStability, inspection.StandStability);
+        Assert.Equal(request.BreakageSafety, inspection.BreakageSafety);
+        Assert.Equal(request.Vitality, inspection.Vitality);
+        Assert.Equal(request.Description, inspection.Description);
 
         var updatedTree = await context.Trees.FindAsync(tree.Id);
         Assert.Equal(inspection.Id, updatedTree!.LastInspectionId);

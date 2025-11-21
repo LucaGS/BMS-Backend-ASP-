@@ -14,7 +14,14 @@ namespace DotNet8.WebApi.Services
                 TreeId = request.TreeId,
                 PerformedAt = DateTime.UtcNow,
                 IsSafeForTraffic = request.IsSafeForTraffic,
-                UserId = userId
+                UserId = userId,
+                NewInspectionIntervall = request.NewInspectionIntervall,
+                DevelopmentalStage = request.DevelopmentalStage ?? string.Empty,
+                DamageLevel = request.DamageLevel,
+                StandStability = request.StandStability,
+                BreakageSafety = request.BreakageSafety,
+                Vitality = request.Vitality,
+                Description = request.Description ?? string.Empty
             };
 
             var tree = await context.Trees.FindAsync(request.TreeId);
@@ -25,6 +32,7 @@ namespace DotNet8.WebApi.Services
 
             context.Inspections.Add(inspection);
 
+            // Persist inspection first to obtain its database-generated id, then wire it to the tree.
             await context.SaveChangesAsync();
 
             tree.LastInspectionId = inspection.Id;
