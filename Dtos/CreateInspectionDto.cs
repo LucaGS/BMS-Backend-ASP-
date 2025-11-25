@@ -13,5 +13,6 @@ namespace DotNet8.WebApi.Dtos
         public string Description { get; set; } = string.Empty;
         public CreateCrownInspectionDto CrownInspection { get; set; } = new();
         public CreateTrunkInspectionDto TrunkInspection { get; set; } = new();  
+        public CreateStemBaseInspectionDto StemBaseInspection { get; set; } = new();
     }
 }

@@ -16,5 +16,8 @@ namespace DotNet8.WebApi.Entities
         public int BreakageSafety { get; set; }
         public int Vitality { get; set; }
         public String Description { get; set; } = string.Empty;
+        public CrownInspection CrownInspection { get; set; } = new();
+        public TrunkInspection TrunkInspection { get; set; } = new();
+        public StemBaseInspection StemBaseInspection { get; set; } = new();
     }
 }

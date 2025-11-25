@@ -36,7 +36,10 @@ public class InspectionServiceTests
             StandStability = 3,
             BreakageSafety = 4,
             Vitality = 5,
-            Description = "No issues"
+            Description = "No issues",
+            CrownInspection = new CreateCrownInspectionDto { Notes = "Healthy crown", AbioticDisturbance = true, TorsionCrack = true },
+            TrunkInspection = new CreateTrunkInspectionDto { Notes = "Minor trunk scratch", AbioticDisturbance = true, Wobbles = true },
+            StemBaseInspection = new CreateStemBaseInspectionDto { Notes = "Stable stem base", Exudation = true, GirdlingRoot = true }
         };
         var before = DateTime.UtcNow;
 
@@ -53,6 +56,15 @@ public class InspectionServiceTests
         Assert.Equal(request.BreakageSafety, inspection.BreakageSafety);
         Assert.Equal(request.Vitality, inspection.Vitality);
         Assert.Equal(request.Description, inspection.Description);
+        Assert.Equal(request.CrownInspection.Notes, inspection.CrownInspection.Notes);
+        Assert.True(inspection.CrownInspection.AbioticDisturbance);
+        Assert.True(inspection.CrownInspection.TorsionCrack);
+        Assert.Equal(request.TrunkInspection.Notes, inspection.TrunkInspection.Notes);
+        Assert.True(inspection.TrunkInspection.AbioticDisturbance);
+        Assert.True(inspection.TrunkInspection.Wobbles);
+        Assert.Equal(request.StemBaseInspection.Notes, inspection.StemBaseInspection.Notes);
+        Assert.True(inspection.StemBaseInspection.Exudation);
+        Assert.True(inspection.StemBaseInspection.GirdlingRoot);
 
         var updatedTree = await context.Trees.FindAsync(tree.Id);
         Assert.Equal(inspection.Id, updatedTree!.LastInspectionId);
