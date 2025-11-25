@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using DotNet8.WebApi.Data;
 using DotNet8.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +12,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // MVC / Swagger / Tools
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
@@ -160,3 +165,5 @@ app.MapGet("/", () => "BMS Backend API is running!");
 app.Run();
 
 public partial class Program;
+
+
