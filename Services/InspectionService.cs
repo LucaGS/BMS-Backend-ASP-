@@ -35,62 +35,7 @@ namespace DotNet8.WebApi.Services
             // Persist inspection first to obtain its database-generated id, then wire it to the tree.
             await context.SaveChangesAsync();
 
-            var crownInspection = new CrownInspection
-            {
-                InspectionId = inspection.Id,
-                Notes = request.CrownInspection?.Notes ?? string.Empty,
-                AbioticDisturbance = request.CrownInspection?.AbioticDisturbance ?? false,
-                Dying = request.CrownInspection?.Dying ?? false,
-                OverloadedBranchOrCrown = request.CrownInspection?.OverloadedBranchOrCrown ?? false,
-                BranchBreak = request.CrownInspection?.BranchBreak ?? false,
-                BranchBreakWound = request.CrownInspection?.BranchBreakWound ?? false,
-                PruningWound = request.CrownInspection?.PruningWound ?? false,
-                Exudation = request.CrownInspection?.Exudation ?? false,
-                TreeInGroup = request.CrownInspection?.TreeInGroup ?? false,
-                TreeIsDead = request.CrownInspection?.TreeIsDead ?? false,
-                ForeignVegetation = request.CrownInspection?.ForeignVegetation ?? false,
-                BioticDisturbance = request.CrownInspection?.BioticDisturbance ?? false,
-                LightningDamage = request.CrownInspection?.LightningDamage ?? false,
-                Deformed = request.CrownInspection?.Deformed ?? false,
-                CompressionFork = request.CrownInspection?.CompressionFork ?? false,
-                DryBranches = request.CrownInspection?.DryBranches ?? false,
-                IncludedBark = request.CrownInspection?.IncludedBark ?? false,
-                OneSidedCrown = request.CrownInspection?.OneSidedCrown ?? false,
-                ForeignObject = request.CrownInspection?.ForeignObject ?? false,
-                Topped = request.CrownInspection?.Topped ?? false,
-                HabitatStructure = request.CrownInspection?.HabitatStructure ?? false,
-                ResinFlow = request.CrownInspection?.ResinFlow ?? false,
-                Cavity = request.CrownInspection?.Cavity ?? false,
-                CompetingBranch = request.CrownInspection?.CompetingBranch ?? false,
-                CompetingTree = request.CrownInspection?.CompetingTree ?? false,
-                Canker = request.CrownInspection?.Canker ?? false,
-                CrownSecured = request.CrownInspection?.CrownSecured ?? false,
-                LongitudinalCrack = request.CrownInspection?.LongitudinalCrack ?? false,
-                ClearanceProfile2_50m = request.CrownInspection?.ClearanceProfile2_50m ?? false,
-                ClearanceProfile4_50m = request.CrownInspection?.ClearanceProfile4_50m ?? false,
-                Burl = request.CrownInspection?.Burl ?? false,
-                OpenDecay = request.CrownInspection?.OpenDecay ?? false,
-                WithoutLeaderShoot = request.CrownInspection?.WithoutLeaderShoot ?? false,
-                FungalFruitingBody = request.CrownInspection?.FungalFruitingBody ?? false,
-                RubbingBranches = request.CrownInspection?.RubbingBranches ?? false,
-                SlimeFlux = request.CrownInspection?.SlimeFlux ?? false,
-                SecondaryCrowns = request.CrownInspection?.SecondaryCrowns ?? false,
-                WoodpeckerHole = request.CrownInspection?.WoodpeckerHole ?? false,
-                CompressionDamage = request.CrownInspection?.CompressionDamage ?? false,
-                TorsionCrack = request.CrownInspection?.TorsionCrack ?? false,
-                Deadwood = request.CrownInspection?.Deadwood ?? false,
-                WidowmakerBranch = request.CrownInspection?.WidowmakerBranch ?? false,
-                UnfavorableCrownDevelopment = request.CrownInspection?.UnfavorableCrownDevelopment ?? false,
-                GraftPoint = request.CrownInspection?.GraftPoint ?? false,
-                UtilityLineConflict = request.CrownInspection?.UtilityLineConflict ?? false,
-                TopDieback = request.CrownInspection?.TopDieback ?? false,
-                Wound = request.CrownInspection?.Wound ?? false,
-                WoundWithCallusRidge = request.CrownInspection?.WoundWithCallusRidge ?? false,
-                WoundCallusClosed = request.CrownInspection?.WoundCallusClosed ?? false,
-                TensionFork = request.CrownInspection?.TensionFork ?? false,
-                ForkedCrown = request.CrownInspection?.ForkedCrown ?? false,
-                ForkCrack = request.CrownInspection?.ForkCrack ?? false
-            };
+            CrownInspection crownInspection = MapCreateInspectionDtoToInspectionEntity(request, inspection);
 
             var trunkInspection = new TrunkInspection
             {
@@ -185,6 +130,65 @@ namespace DotNet8.WebApi.Services
             return inspection;
         }
 
+        private static CrownInspection MapCreateInspectionDtoToInspectionEntity(CreateInspectionDto request, Inspection inspection)
+        {
+            return new CrownInspection
+            {
+                InspectionId = inspection.Id,
+                Notes = request.CrownInspection?.Notes ?? string.Empty,
+                AbioticDisturbance = request.CrownInspection?.AbioticDisturbance ?? false,
+                Dying = request.CrownInspection?.Dying ?? false,
+                OverloadedBranchOrCrown = request.CrownInspection?.OverloadedBranchOrCrown ?? false,
+                BranchBreak = request.CrownInspection?.BranchBreak ?? false,
+                BranchBreakWound = request.CrownInspection?.BranchBreakWound ?? false,
+                PruningWound = request.CrownInspection?.PruningWound ?? false,
+                Exudation = request.CrownInspection?.Exudation ?? false,
+                TreeInGroup = request.CrownInspection?.TreeInGroup ?? false,
+                TreeIsDead = request.CrownInspection?.TreeIsDead ?? false,
+                ForeignVegetation = request.CrownInspection?.ForeignVegetation ?? false,
+                BioticDisturbance = request.CrownInspection?.BioticDisturbance ?? false,
+                LightningDamage = request.CrownInspection?.LightningDamage ?? false,
+                Deformed = request.CrownInspection?.Deformed ?? false,
+                CompressionFork = request.CrownInspection?.CompressionFork ?? false,
+                DryBranches = request.CrownInspection?.DryBranches ?? false,
+                IncludedBark = request.CrownInspection?.IncludedBark ?? false,
+                OneSidedCrown = request.CrownInspection?.OneSidedCrown ?? false,
+                ForeignObject = request.CrownInspection?.ForeignObject ?? false,
+                Topped = request.CrownInspection?.Topped ?? false,
+                HabitatStructure = request.CrownInspection?.HabitatStructure ?? false,
+                ResinFlow = request.CrownInspection?.ResinFlow ?? false,
+                Cavity = request.CrownInspection?.Cavity ?? false,
+                CompetingBranch = request.CrownInspection?.CompetingBranch ?? false,
+                CompetingTree = request.CrownInspection?.CompetingTree ?? false,
+                Canker = request.CrownInspection?.Canker ?? false,
+                CrownSecured = request.CrownInspection?.CrownSecured ?? false,
+                LongitudinalCrack = request.CrownInspection?.LongitudinalCrack ?? false,
+                ClearanceProfile2_50m = request.CrownInspection?.ClearanceProfile2_50m ?? false,
+                ClearanceProfile4_50m = request.CrownInspection?.ClearanceProfile4_50m ?? false,
+                Burl = request.CrownInspection?.Burl ?? false,
+                OpenDecay = request.CrownInspection?.OpenDecay ?? false,
+                WithoutLeaderShoot = request.CrownInspection?.WithoutLeaderShoot ?? false,
+                FungalFruitingBody = request.CrownInspection?.FungalFruitingBody ?? false,
+                RubbingBranches = request.CrownInspection?.RubbingBranches ?? false,
+                SlimeFlux = request.CrownInspection?.SlimeFlux ?? false,
+                SecondaryCrowns = request.CrownInspection?.SecondaryCrowns ?? false,
+                WoodpeckerHole = request.CrownInspection?.WoodpeckerHole ?? false,
+                CompressionDamage = request.CrownInspection?.CompressionDamage ?? false,
+                TorsionCrack = request.CrownInspection?.TorsionCrack ?? false,
+                Deadwood = request.CrownInspection?.Deadwood ?? false,
+                WidowmakerBranch = request.CrownInspection?.WidowmakerBranch ?? false,
+                UnfavorableCrownDevelopment = request.CrownInspection?.UnfavorableCrownDevelopment ?? false,
+                GraftPoint = request.CrownInspection?.GraftPoint ?? false,
+                UtilityLineConflict = request.CrownInspection?.UtilityLineConflict ?? false,
+                TopDieback = request.CrownInspection?.TopDieback ?? false,
+                Wound = request.CrownInspection?.Wound ?? false,
+                WoundWithCallusRidge = request.CrownInspection?.WoundWithCallusRidge ?? false,
+                WoundCallusClosed = request.CrownInspection?.WoundCallusClosed ?? false,
+                TensionFork = request.CrownInspection?.TensionFork ?? false,
+                ForkedCrown = request.CrownInspection?.ForkedCrown ?? false,
+                ForkCrack = request.CrownInspection?.ForkCrack ?? false
+            };
+        }
 
         public Task<bool> DeleteInspectionAsync(int inspectionId, int userId)
         {
@@ -209,6 +213,15 @@ namespace DotNet8.WebApi.Services
                 .Include(inspection => inspection.StemBaseInspection)
                 .Where(inspection => inspection.TreeId == treeId && inspection.UserId == userId)
                 .ToListAsync();
+        }
+
+        public async Task<Inspection> GetInspectionById(int inspectionId)
+        {
+            return await context.Inspections
+                .Include(inspection => inspection.CrownInspection)
+                .Include(inspection => inspection.TrunkInspection)
+                .Include(inspection => inspection.TrunkInspection)
+                .SingleOrDefaultAsync(inspection => inspection.Id == inspection.Id);
         }
     }
 }
