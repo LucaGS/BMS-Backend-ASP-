@@ -221,7 +221,7 @@ namespace DotNet8.WebApi.Services
                 .Include(inspection => inspection.CrownInspection)
                 .Include(inspection => inspection.TrunkInspection)
                 .Include(inspection => inspection.TrunkInspection)
-                .SingleOrDefaultAsync(inspection => inspection.Id == inspection.Id);
+                .SingleOrDefaultAsync(inspection => inspection.Id == inspectionId);
         }
     }
 }
