@@ -215,7 +215,7 @@ namespace DotNet8.WebApi.Services
                 .ToListAsync();
         }
 
-        public async Task<Inspection> GetInspectionById(int inspectionId)
+        public async Task<Inspection> GetInspectionByIdAsync(int inspectionId)
         {
             return await context.Inspections
                 .Include(inspection => inspection.CrownInspection)
