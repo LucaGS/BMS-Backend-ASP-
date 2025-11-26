@@ -2,7 +2,10 @@ using DotNet8.WebApi.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace DotNet8.WebApi.Services
-{    // Handels extracting User id from token
+{
+    /// <summary>
+    /// Reads user identity information from the current HTTP context (supports multiple claim types).
+    /// </summary>
     public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
      {  
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;

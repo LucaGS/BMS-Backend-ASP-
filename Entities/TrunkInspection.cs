@@ -1,8 +1,11 @@
-﻿namespace DotNet8.WebApi.Dtos
+namespace DotNet8.WebApi.Entities
 {
-    public class CreateTrunkInspectionDto
+    public class TrunkInspection
     {
+        public int Id { get; set; }
+        public int InspectionId { get; set; }
         public string Notes { get; set; } = string.Empty;
+        public Inspection? Inspection { get; set; }
         public bool AbioticDisturbance { get; set; }
         public bool BranchBreakWound { get; set; }
         public bool PruningWound { get; set; }

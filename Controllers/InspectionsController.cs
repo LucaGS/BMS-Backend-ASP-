@@ -33,5 +33,20 @@ namespace DotNet8.WebApi.Controllers
             var inspections = await inspectionService.GetInspectionsByTreeIdAsync(treeId, userId);
             return Ok(inspections);
         }
+        [HttpGet("{inspectionId}")]
+        public async Task<IActionResult> GetInspectionById(int inspectionId)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+            var inspection = await inspectionService.GetInspectionByIdAsync(inspectionId, userId);
+            if (inspection == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(inspection);
+        }
     }
 }
