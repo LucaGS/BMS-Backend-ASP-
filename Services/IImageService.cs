@@ -22,6 +22,6 @@ namespace DotNet8.WebApi.Services
         /// <param name="treeId">The Id of the Tree, supplied by the client</param>
         /// <param name="userId">The identifier of the owning user.</param>
         /// returns>Return the Last Image of the Tree.</returns>
-        Task<Image> GetLastImage(int treeId, int userId);
+        Task<Image?> GetLastImage(int treeId, int userId);
     }
 }

@@ -27,5 +27,6 @@ namespace DotNet8.WebApi.Services
         /// <param name="greenAreaId">Identifier of the green area.</param>
         /// <param name="userId">Identifier of the owner.</param>
         Task<List<Tree>> GetTreesByGreenAreaIdAsync(int greenAreaId, int userId);
+        
     }
 }
