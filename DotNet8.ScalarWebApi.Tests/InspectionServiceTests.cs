@@ -32,14 +32,11 @@ public class InspectionServiceTests
             IsSafeForTraffic = true,
             NewInspectionIntervall = 12,
             DevelopmentalStage = "Mature",
-            DamageLevel = 2,
-            StandStability = 3,
-            BreakageSafety = 4,
             Vitality = 5,
             Description = "No issues",
-            CrownInspection = new CreateCrownInspectionDto { Notes = "Healthy crown", AbioticDisturbance = true, TorsionCrack = true },
-            TrunkInspection = new CreateTrunkInspectionDto { Notes = "Minor trunk scratch", AbioticDisturbance = true, Wobbles = true },
-            StemBaseInspection = new CreateStemBaseInspectionDto { Notes = "Stable stem base", Exudation = true, GirdlingRoot = true }
+            CrownInspection = new CreateCrownInspectionDto { Notes = "Healthy crown", Description = "Crown detail", AbioticDisturbance = true, TorsionCrack = true },
+            TrunkInspection = new CreateTrunkInspectionDto { Notes = "Minor trunk scratch", Description = "Trunk detail", AbioticDisturbance = true, Wobbles = true },
+            StemBaseInspection = new CreateStemBaseInspectionDto { Notes = "Stable stem base", Description = "Stem base detail", Exudation = true, GirdlingRoot = true }
         };
         var before = DateTime.UtcNow;
 
@@ -51,18 +48,18 @@ public class InspectionServiceTests
         Assert.InRange(inspection.PerformedAt, before.AddSeconds(-1), after.AddSeconds(1));
         Assert.Equal(request.NewInspectionIntervall, inspection.NewInspectionIntervall);
         Assert.Equal(request.DevelopmentalStage, inspection.DevelopmentalStage);
-        Assert.Equal(request.DamageLevel, inspection.DamageLevel);
-        Assert.Equal(request.StandStability, inspection.StandStability);
-        Assert.Equal(request.BreakageSafety, inspection.BreakageSafety);
         Assert.Equal(request.Vitality, inspection.Vitality);
         Assert.Equal(request.Description, inspection.Description);
         Assert.Equal(request.CrownInspection.Notes, inspection.CrownInspection.Notes);
+        Assert.Equal(request.CrownInspection.Description, inspection.CrownInspection.Description);
         Assert.True(inspection.CrownInspection.AbioticDisturbance);
         Assert.True(inspection.CrownInspection.TorsionCrack);
         Assert.Equal(request.TrunkInspection.Notes, inspection.TrunkInspection.Notes);
+        Assert.Equal(request.TrunkInspection.Description, inspection.TrunkInspection.Description);
         Assert.True(inspection.TrunkInspection.AbioticDisturbance);
         Assert.True(inspection.TrunkInspection.Wobbles);
         Assert.Equal(request.StemBaseInspection.Notes, inspection.StemBaseInspection.Notes);
+        Assert.Equal(request.StemBaseInspection.Description, inspection.StemBaseInspection.Description);
         Assert.True(inspection.StemBaseInspection.Exudation);
         Assert.True(inspection.StemBaseInspection.GirdlingRoot);
 

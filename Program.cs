@@ -104,6 +104,7 @@ builder.Services.AddScoped<IGreenAreaService, GreenAreaService>();
 builder.Services.AddScoped<ITreeService, TreeService>();
 builder.Services.AddScoped<IInspectionService, InspectionService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IArboriculturalMeasuresService, ArboriculturalMeasuresService>();
 
 var app = builder.Build();
 
