@@ -11,9 +11,7 @@ namespace DotNet8.WebApi.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "TopDieback",
-                table: "TrunkInspections");
+            migrationBuilder.Sql("ALTER TABLE \"TrunkInspections\" DROP COLUMN IF EXISTS \"TopDieback\";");
 
             migrationBuilder.DropColumn(
                 name: "BreakageSafety",
