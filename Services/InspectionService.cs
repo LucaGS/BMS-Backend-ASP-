@@ -7,8 +7,13 @@ namespace DotNet8.WebApi.Services
 
     public class InspectionService(AppDbContext context) : IInspectionService
     {
+        /// <summary>
+        /// Creates a new inspection for a tree including child inspection entities, sets last inspection on the tree and next inspection date
+        /// (crown, trunk, and stem base) and optional arboricultural measures.
+        /// </summary>
         public async Task<Inspection> CreateInspectionAsync(CreateInspectionDto request, int userId)
         {
+            // Create the Inspection entity from the request DTO
             var inspection = new Inspection
             {
                 TreeId = request.TreeId,
@@ -21,6 +26,7 @@ namespace DotNet8.WebApi.Services
                 Description = request.Description ?? string.Empty
             };
 
+            // Verify that the referenced tree exists and belongs to the current user
             var tree = await context.Trees
                 .SingleOrDefaultAsync(t => t.Id == request.TreeId && t.UserId == userId);
             if (tree == null)
@@ -29,13 +35,18 @@ namespace DotNet8.WebApi.Services
                     $"Tree with id {request.TreeId} not found for the current user.");
             }
 
+            // If arboricultural measures were specified, validate and load them
             if (request.ArboriculturalMeasureIds.Any())
             {
+                // Remove duplicate ids
                 var measureIds = request.ArboriculturalMeasureIds.Distinct().ToList();
+
+                // Load measures that belong to the current user
                 var measures = await context.ArboriculturalMeasures
                     .Where(m => measureIds.Contains(m.Id) && m.UserId == userId)
                     .ToListAsync();
 
+                // Determine if any requested ids were not found
                 var missingIds = measureIds.Except(measures.Select(m => m.Id)).ToList();
                 if (missingIds.Any())
                 {
@@ -43,21 +54,162 @@ namespace DotNet8.WebApi.Services
                         $"Arboricultural measures not found for the current user: {string.Join(", ", missingIds)}");
                 }
 
+                // Assign measures to this inspection
                 inspection.ArboriculturalMeasures = measures;
             }
 
+            // Begin a transaction only if the database provider supports it
             await using var transaction = context.Database.IsRelational()
                 ? await context.Database.BeginTransactionAsync()
                 : null;
 
+            // Save the inspection first, so we get a database-generated ID
             context.Inspections.Add(inspection);
-
-            // Persist inspection first to obtain its database-generated id, then wire it to the tree.
             await context.SaveChangesAsync();
 
-            CrownInspection crownInspection = MapCreateInspectionDtoToInspectionEntity(request, inspection);
+            // Map crown, trunk, and stem base inspection details from the DTO
+            CrownInspection crownInspection = MapCreateInspectionDtoToCrownInspectionEntity(request, inspection);
+            TrunkInspection trunkInspection = MapCreateInspectionDtoToTrunkInspectionEntity(request, inspection);
+            StemBaseInspection stemBaseInspection = MapCreateInspectionDtoToStemBaseInspectionEnity(request, inspection);
 
-            var trunkInspection = new TrunkInspection
+            // Add child inspection entities to the context
+            context.CrownInspections.Add(crownInspection);
+            context.TrunkInspections.Add(trunkInspection);
+            context.StemBaseInspections.Add(stemBaseInspection);
+
+            // Set navigation properties
+            inspection.CrownInspection = crownInspection;
+            inspection.TrunkInspection = trunkInspection;
+            inspection.StemBaseInspection = stemBaseInspection;
+
+            // Update the tree with information about the inspection
+            tree.LastInspectionId = inspection.Id;
+            tree.NextInspection = DateTime.UtcNow.AddMonths(inspection.NewInspectionIntervall);
+
+            // Persist all changes
+            await context.SaveChangesAsync();
+
+            // Commit the transaction if one was opened
+            if (transaction != null)
+            {
+                await transaction.CommitAsync();
+            }
+
+            // Reload the inspection with all navigation properties,
+            // ensuring the returned object contains the persisted state
+            return await context.Inspections
+                .Include(i => i.CrownInspection)
+                .Include(i => i.TrunkInspection)
+                .Include(i => i.StemBaseInspection)
+                .SingleAsync(i => i.Id == inspection.Id && i.UserId == userId);
+        }
+
+
+    
+
+        public Task<bool> DeleteInspectionAsync(int inspectionId, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<Inspection>> GetInspectionsByTreeIdAsync(int treeId, int userId)
+        {
+            return await context.Inspections
+                .Include(inspection => inspection.CrownInspection)
+                .Include(inspection => inspection.TrunkInspection)
+                .Include(inspection => inspection.StemBaseInspection)
+                .Include(inspection => inspection.ArboriculturalMeasures)
+                .Where(inspection => inspection.TreeId == treeId && inspection.UserId == userId)
+                .ToListAsync();
+        }
+
+        public Task<List<Inspection>> GetAllInspectionsAsync(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Inspection?> GetInspectionByIdAsync(int inspectionId, int userId)
+        {
+            return context.Inspections
+                .Include(inspection => inspection.CrownInspection)
+                .Include(inspection => inspection.TrunkInspection)
+                .Include(inspection => inspection.StemBaseInspection)
+                .Include(inspection => inspection.ArboriculturalMeasures)
+                .SingleOrDefaultAsync(inspection =>
+                    inspection.Id == inspectionId && inspection.UserId == userId);
+        }
+        /// <summary>
+        /// Creates a StemBaseInspection entity from the CreateInspectionDto.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="inspection"></param>
+        /// <returns></returns>
+        private static StemBaseInspection MapCreateInspectionDtoToStemBaseInspectionEnity(CreateInspectionDto request, Inspection inspection)
+        {
+            return new StemBaseInspection
+            {
+                InspectionId = inspection.Id,
+                Notes = request.StemBaseInspection?.Notes ?? string.Empty,
+                Description = request.StemBaseInspection?.Description ?? string.Empty,
+                Excavation = request.StemBaseInspection?.Excavation ?? false,
+                ExcavationDescription = request.StemBaseInspection?.ExcavationDescription ?? string.Empty,
+                AdventitiousRootFormation = request.StemBaseInspection?.AdventitiousRootFormation ?? false,
+                AdventitiousRootFormationDescription = request.StemBaseInspection?.AdventitiousRootFormationDescription ?? string.Empty,
+                Exudation = request.StemBaseInspection?.Exudation ?? false,
+                ExudationDescription = request.StemBaseInspection?.ExudationDescription ?? string.Empty,
+                StructuresAtStemBase = request.StemBaseInspection?.StructuresAtStemBase ?? false,
+                StructuresAtStemBaseDescription = request.StemBaseInspection?.StructuresAtStemBaseDescription ?? string.Empty,
+                StructuresNearTree = request.StemBaseInspection?.StructuresNearTree ?? false,
+                StructuresNearTreeDescription = request.StemBaseInspection?.StructuresNearTreeDescription ?? string.Empty,
+                BulgeOrSwelling = request.StemBaseInspection?.BulgeOrSwelling ?? false,
+                BulgeOrSwellingDescription = request.StemBaseInspection?.BulgeOrSwellingDescription ?? string.Empty,
+                ForeignVegetation = request.StemBaseInspection?.ForeignVegetation ?? false,
+                ForeignVegetationDescription = request.StemBaseInspection?.ForeignVegetationDescription ?? string.Empty,
+                BoreDust = request.StemBaseInspection?.BoreDust ?? false,
+                BoreDustDescription = request.StemBaseInspection?.BoreDustDescription ?? string.Empty,
+                Bottleneck = request.StemBaseInspection?.Bottleneck ?? false,
+                BottleneckDescription = request.StemBaseInspection?.BottleneckDescription ?? string.Empty,
+                ForeignObject = request.StemBaseInspection?.ForeignObject ?? false,
+                ForeignObjectDescription = request.StemBaseInspection?.ForeignObjectDescription ?? string.Empty,
+                HabitatStructures = request.StemBaseInspection?.HabitatStructures ?? false,
+                HabitatStructuresDescription = request.StemBaseInspection?.HabitatStructuresDescription ?? string.Empty,
+                TreeOnSlope = request.StemBaseInspection?.TreeOnSlope ?? false,
+                TreeOnSlopeDescription = request.StemBaseInspection?.TreeOnSlopeDescription ?? string.Empty,
+                ResinFlow = request.StemBaseInspection?.ResinFlow ?? false,
+                ResinFlowDescription = request.StemBaseInspection?.ResinFlowDescription ?? string.Empty,
+                Cavity = request.StemBaseInspection?.Cavity ?? false,
+                CavityDescription = request.StemBaseInspection?.CavityDescription ?? string.Empty,
+                Canker = request.StemBaseInspection?.Canker ?? false,
+                CankerDescription = request.StemBaseInspection?.CankerDescription ?? string.Empty,
+                OpenDecay = request.StemBaseInspection?.OpenDecay ?? false,
+                OpenDecayDescription = request.StemBaseInspection?.OpenDecayDescription ?? string.Empty,
+                FungalFruitingBody = request.StemBaseInspection?.FungalFruitingBody ?? false,
+                FungalFruitingBodyDescription = request.StemBaseInspection?.FungalFruitingBodyDescription ?? string.Empty,
+                SlimeFlux = request.StemBaseInspection?.SlimeFlux ?? false,
+                SlimeFluxDescription = request.StemBaseInspection?.SlimeFluxDescription ?? string.Empty,
+                StemBaseThickened = request.StemBaseInspection?.StemBaseThickened ?? false,
+                StemBaseThickenedDescription = request.StemBaseInspection?.StemBaseThickenedDescription ?? string.Empty,
+                CompressionDamage = request.StemBaseInspection?.CompressionDamage ?? false,
+                CompressionDamageDescription = request.StemBaseInspection?.CompressionDamageDescription ?? string.Empty,
+                Overfilled = request.StemBaseInspection?.Overfilled ?? false,
+                OverfilledDescription = request.StemBaseInspection?.OverfilledDescription ?? string.Empty,
+                GraftPoint = request.StemBaseInspection?.GraftPoint ?? false,
+                GraftPointDescription = request.StemBaseInspection?.GraftPointDescription ?? string.Empty,
+                GirdlingRoot = request.StemBaseInspection?.GirdlingRoot ?? false,
+                GirdlingRootDescription = request.StemBaseInspection?.GirdlingRootDescription ?? string.Empty,
+                RootDamage = request.StemBaseInspection?.RootDamage ?? false,
+                RootDamageDescription = request.StemBaseInspection?.RootDamageDescription ?? string.Empty
+            };
+        }
+        /// <summary>
+        /// Creates a TrunkInspection entity from the CreateInspectionDto.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="inspection"></param>
+        /// <returns></returns>
+        private static TrunkInspection MapCreateInspectionDtoToTrunkInspectionEntity(CreateInspectionDto request, Inspection inspection)
+        {
+            return new TrunkInspection
             {
                 InspectionId = inspection.Id,
                 Notes = request.TrunkInspection?.Notes ?? string.Empty,
@@ -147,88 +299,14 @@ namespace DotNet8.WebApi.Services
                 ForkCrack = request.TrunkInspection?.ForkCrack ?? false,
                 ForkCrackDescription = request.TrunkInspection?.ForkCrackDescription ?? string.Empty
             };
-
-            var stemBaseInspection = new StemBaseInspection
-            {
-                InspectionId = inspection.Id,
-                Notes = request.StemBaseInspection?.Notes ?? string.Empty,
-                Description = request.StemBaseInspection?.Description ?? string.Empty,
-                Excavation = request.StemBaseInspection?.Excavation ?? false,
-                ExcavationDescription = request.StemBaseInspection?.ExcavationDescription ?? string.Empty,
-                AdventitiousRootFormation = request.StemBaseInspection?.AdventitiousRootFormation ?? false,
-                AdventitiousRootFormationDescription = request.StemBaseInspection?.AdventitiousRootFormationDescription ?? string.Empty,
-                Exudation = request.StemBaseInspection?.Exudation ?? false,
-                ExudationDescription = request.StemBaseInspection?.ExudationDescription ?? string.Empty,
-                StructuresAtStemBase = request.StemBaseInspection?.StructuresAtStemBase ?? false,
-                StructuresAtStemBaseDescription = request.StemBaseInspection?.StructuresAtStemBaseDescription ?? string.Empty,
-                StructuresNearTree = request.StemBaseInspection?.StructuresNearTree ?? false,
-                StructuresNearTreeDescription = request.StemBaseInspection?.StructuresNearTreeDescription ?? string.Empty,
-                BulgeOrSwelling = request.StemBaseInspection?.BulgeOrSwelling ?? false,
-                BulgeOrSwellingDescription = request.StemBaseInspection?.BulgeOrSwellingDescription ?? string.Empty,
-                ForeignVegetation = request.StemBaseInspection?.ForeignVegetation ?? false,
-                ForeignVegetationDescription = request.StemBaseInspection?.ForeignVegetationDescription ?? string.Empty,
-                BoreDust = request.StemBaseInspection?.BoreDust ?? false,
-                BoreDustDescription = request.StemBaseInspection?.BoreDustDescription ?? string.Empty,
-                Bottleneck = request.StemBaseInspection?.Bottleneck ?? false,
-                BottleneckDescription = request.StemBaseInspection?.BottleneckDescription ?? string.Empty,
-                ForeignObject = request.StemBaseInspection?.ForeignObject ?? false,
-                ForeignObjectDescription = request.StemBaseInspection?.ForeignObjectDescription ?? string.Empty,
-                HabitatStructures = request.StemBaseInspection?.HabitatStructures ?? false,
-                HabitatStructuresDescription = request.StemBaseInspection?.HabitatStructuresDescription ?? string.Empty,
-                TreeOnSlope = request.StemBaseInspection?.TreeOnSlope ?? false,
-                TreeOnSlopeDescription = request.StemBaseInspection?.TreeOnSlopeDescription ?? string.Empty,
-                ResinFlow = request.StemBaseInspection?.ResinFlow ?? false,
-                ResinFlowDescription = request.StemBaseInspection?.ResinFlowDescription ?? string.Empty,
-                Cavity = request.StemBaseInspection?.Cavity ?? false,
-                CavityDescription = request.StemBaseInspection?.CavityDescription ?? string.Empty,
-                Canker = request.StemBaseInspection?.Canker ?? false,
-                CankerDescription = request.StemBaseInspection?.CankerDescription ?? string.Empty,
-                OpenDecay = request.StemBaseInspection?.OpenDecay ?? false,
-                OpenDecayDescription = request.StemBaseInspection?.OpenDecayDescription ?? string.Empty,
-                FungalFruitingBody = request.StemBaseInspection?.FungalFruitingBody ?? false,
-                FungalFruitingBodyDescription = request.StemBaseInspection?.FungalFruitingBodyDescription ?? string.Empty,
-                SlimeFlux = request.StemBaseInspection?.SlimeFlux ?? false,
-                SlimeFluxDescription = request.StemBaseInspection?.SlimeFluxDescription ?? string.Empty,
-                StemBaseThickened = request.StemBaseInspection?.StemBaseThickened ?? false,
-                StemBaseThickenedDescription = request.StemBaseInspection?.StemBaseThickenedDescription ?? string.Empty,
-                CompressionDamage = request.StemBaseInspection?.CompressionDamage ?? false,
-                CompressionDamageDescription = request.StemBaseInspection?.CompressionDamageDescription ?? string.Empty,
-                Overfilled = request.StemBaseInspection?.Overfilled ?? false,
-                OverfilledDescription = request.StemBaseInspection?.OverfilledDescription ?? string.Empty,
-                GraftPoint = request.StemBaseInspection?.GraftPoint ?? false,
-                GraftPointDescription = request.StemBaseInspection?.GraftPointDescription ?? string.Empty,
-                GirdlingRoot = request.StemBaseInspection?.GirdlingRoot ?? false,
-                GirdlingRootDescription = request.StemBaseInspection?.GirdlingRootDescription ?? string.Empty,
-                RootDamage = request.StemBaseInspection?.RootDamage ?? false,
-                RootDamageDescription = request.StemBaseInspection?.RootDamageDescription ?? string.Empty
-            };
-
-            context.CrownInspections.Add(crownInspection);
-            context.TrunkInspections.Add(trunkInspection);
-            context.StemBaseInspections.Add(stemBaseInspection);
-
-            inspection.CrownInspection = crownInspection;
-            inspection.TrunkInspection = trunkInspection;
-            inspection.StemBaseInspection = stemBaseInspection;
-
-            tree.LastInspectionId = inspection.Id;
-
-            await context.SaveChangesAsync();
-
-            if (transaction != null)
-            {
-                await transaction.CommitAsync();
-            }
-
-            // Reload with all navigations to return the persisted state (incl. database-generated keys).
-            return await context.Inspections
-                .Include(i => i.CrownInspection)
-                .Include(i => i.TrunkInspection)
-                .Include(i => i.StemBaseInspection)
-                .SingleAsync(i => i.Id == inspection.Id && i.UserId == userId);
         }
-
-        private static CrownInspection MapCreateInspectionDtoToInspectionEntity(CreateInspectionDto request, Inspection inspection)
+        /// <summary>
+        /// Creates a CrownInspection entity from the CreateInspectionDto.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="inspection"></param>
+        /// <returns></returns>
+        private static CrownInspection MapCreateInspectionDtoToCrownInspectionEntity(CreateInspectionDto request, Inspection inspection)
         {
             return new CrownInspection
             {
@@ -338,38 +416,6 @@ namespace DotNet8.WebApi.Services
                 ForkCrack = request.CrownInspection?.ForkCrack ?? false,
                 ForkCrackDescription = request.CrownInspection?.ForkCrackDescription ?? string.Empty
             };
-        }
-
-        public Task<bool> DeleteInspectionAsync(int inspectionId, int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<List<Inspection>> GetInspectionsByTreeIdAsync(int treeId, int userId)
-        {
-            return await context.Inspections
-                .Include(inspection => inspection.CrownInspection)
-                .Include(inspection => inspection.TrunkInspection)
-                .Include(inspection => inspection.StemBaseInspection)
-                .Include(inspection => inspection.ArboriculturalMeasures)
-                .Where(inspection => inspection.TreeId == treeId && inspection.UserId == userId)
-                .ToListAsync();
-        }
-
-        public Task<List<Inspection>> GetAllInspectionsAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Inspection?> GetInspectionByIdAsync(int inspectionId, int userId)
-        {
-            return context.Inspections
-                .Include(inspection => inspection.CrownInspection)
-                .Include(inspection => inspection.TrunkInspection)
-                .Include(inspection => inspection.StemBaseInspection)
-                .Include(inspection => inspection.ArboriculturalMeasures)
-                .SingleOrDefaultAsync(inspection =>
-                    inspection.Id == inspectionId && inspection.UserId == userId);
         }
     }
 }

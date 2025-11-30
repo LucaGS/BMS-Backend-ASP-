@@ -23,6 +23,7 @@ namespace DotNet8.WebApi.Services
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
                 CrownDiameterMeters = request.CrownDiameterMeters,
+                TreeSizeMeters = request.TreeSizeMeters,
                 NumberOfTrunks = request.NumberOfTrunks,
                 TrunkDiameter1 = request.TrunkDiameter1,
                 TrunkDiameter2 = request.TrunkDiameter2,

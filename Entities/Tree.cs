@@ -18,7 +18,7 @@ namespace DotNet8.WebApi.Entities
         public double TrunkDiameter1 { get; set; }
         public double TrunkDiameter2 { get; set; }
         public double TrunkDiameter3 { get; set; }
-
-
+        public double TreeSizeMeters { get; set; }
+        public DateTime NextInspection { get; set; }
     }
 }
