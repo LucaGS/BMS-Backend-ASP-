@@ -105,11 +105,112 @@ namespace DotNet8.WebApi.Services
         }
 
 
-    
-
-        public Task<bool> DeleteInspectionAsync(int inspectionId, int userId)
+        public async Task<Inspection?> UpdateInspectionAsync(int inspectionId, UpdateInspectionDto request, int userId)
         {
-            throw new NotImplementedException();
+            var inspection = await context.Inspections
+                .Include(i => i.CrownInspection)
+                .Include(i => i.TrunkInspection)
+                .Include(i => i.StemBaseInspection)
+                .Include(i => i.ArboriculturalMeasures)
+                .SingleOrDefaultAsync(i => i.Id == inspectionId && i.UserId == userId);
+
+            if (inspection == null)
+            {
+                return null;
+            }
+
+            var measureIds = request.ArboriculturalMeasureIds.Distinct().ToList();
+            var measures = new List<ArboriculturalMeasure>();
+            if (measureIds.Any())
+            {
+                measures = await context.ArboriculturalMeasures
+                    .Where(m => measureIds.Contains(m.Id) && m.UserId == userId)
+                    .ToListAsync();
+
+                var missingIds = measureIds.Except(measures.Select(m => m.Id)).ToList();
+                if (missingIds.Any())
+                {
+                    throw new InvalidOperationException(
+                        $"Arboricultural measures not found for the current user: {string.Join(", ", missingIds)}");
+                }
+            }
+
+            inspection.IsSafeForTraffic = request.IsSafeForTraffic;
+            inspection.NewInspectionIntervall = request.NewInspectionIntervall;
+            inspection.DevelopmentalStage = request.DevelopmentalStage ?? string.Empty;
+            inspection.Vitality = request.Vitality;
+            inspection.Description = request.Description ?? string.Empty;
+            inspection.ArboriculturalMeasures = measures;
+
+            var tree = await context.Trees
+                .SingleOrDefaultAsync(t => t.Id == inspection.TreeId && t.UserId == userId);
+            if (tree == null)
+            {
+                throw new InvalidOperationException(
+                    $"Tree with id {inspection.TreeId} not found for the current user.");
+            }
+
+            var mappingSource = new CreateInspectionDto
+            {
+                CrownInspection = request.CrownInspection,
+                TrunkInspection = request.TrunkInspection,
+                StemBaseInspection = request.StemBaseInspection
+            };
+
+            var updatedCrown = MapCreateInspectionDtoToCrownInspectionEntity(mappingSource, inspection);
+            updatedCrown.Id = inspection.CrownInspection.Id;
+            var updatedTrunk = MapCreateInspectionDtoToTrunkInspectionEntity(mappingSource, inspection);
+            updatedTrunk.Id = inspection.TrunkInspection.Id;
+            var updatedStemBase = MapCreateInspectionDtoToStemBaseInspectionEnity(mappingSource, inspection);
+            updatedStemBase.Id = inspection.StemBaseInspection.Id;
+
+            context.Entry(inspection.CrownInspection).CurrentValues.SetValues(updatedCrown);
+            context.Entry(inspection.TrunkInspection).CurrentValues.SetValues(updatedTrunk);
+            context.Entry(inspection.StemBaseInspection).CurrentValues.SetValues(updatedStemBase);
+
+            tree.LastInspectionId = inspection.Id;
+            tree.NextInspection = DateTime.UtcNow.AddMonths(inspection.NewInspectionIntervall);
+
+            await context.SaveChangesAsync();
+            return inspection;
+        }
+
+        public async Task<bool> DeleteInspectionAsync(int inspectionId, int userId)
+        {
+            var inspection = await context.Inspections
+                .Include(i => i.CrownInspection)
+                .Include(i => i.TrunkInspection)
+                .Include(i => i.StemBaseInspection)
+                .SingleOrDefaultAsync(i => i.Id == inspectionId && i.UserId == userId);
+
+            if (inspection == null)
+            {
+                return false;
+            }
+
+            context.CrownInspections.Remove(inspection.CrownInspection);
+            context.TrunkInspections.Remove(inspection.TrunkInspection);
+            context.StemBaseInspections.Remove(inspection.StemBaseInspection);
+            context.Inspections.Remove(inspection);
+
+            var tree = await context.Trees
+                .SingleOrDefaultAsync(t => t.Id == inspection.TreeId && t.UserId == userId);
+            if (tree != null)
+            {
+                var latestInspection = await context.Inspections
+                    .Where(i => i.TreeId == tree.Id && i.UserId == userId && i.Id != inspectionId)
+                    .OrderByDescending(i => i.PerformedAt)
+                    .ThenByDescending(i => i.Id)
+                    .FirstOrDefaultAsync();
+
+                tree.LastInspectionId = latestInspection?.Id;
+                tree.NextInspection = latestInspection != null
+                    ? latestInspection.PerformedAt.AddMonths(latestInspection.NewInspectionIntervall)
+                    : DateTime.MinValue;
+            }
+
+            await context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<List<Inspection>> GetInspectionsByTreeIdAsync(int treeId, int userId)
@@ -123,9 +224,15 @@ namespace DotNet8.WebApi.Services
                 .ToListAsync();
         }
 
-        public Task<List<Inspection>> GetAllInspectionsAsync(int userId)
+        public async Task<List<Inspection>> GetAllInspectionsAsync(int userId)
         {
-            throw new NotImplementedException();
+            return await context.Inspections
+                .Include(inspection => inspection.CrownInspection)
+                .Include(inspection => inspection.TrunkInspection)
+                .Include(inspection => inspection.StemBaseInspection)
+                .Include(inspection => inspection.ArboriculturalMeasures)
+                .Where(inspection => inspection.UserId == userId)
+                .ToListAsync();
         }
 
         public Task<Inspection?> GetInspectionByIdAsync(int inspectionId, int userId)

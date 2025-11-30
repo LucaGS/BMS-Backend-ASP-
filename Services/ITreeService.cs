@@ -27,6 +27,20 @@ namespace DotNet8.WebApi.Services
         /// <param name="greenAreaId">Identifier of the green area.</param>
         /// <param name="userId">Identifier of the owner.</param>
         Task<List<Tree>> GetTreesByGreenAreaIdAsync(int greenAreaId, int userId);
-        
+
+        /// <summary>
+        /// Updates an existing tree that belongs to the specified user.
+        /// </summary>
+        /// <param name="treeId">Identifier of the tree to update.</param>
+        /// <param name="request">Updated tree data.</param>
+        /// <param name="userId">Identifier of the owner.</param>
+        Task<Tree?> UpdateTreeAsync(int treeId, UpdateTreeDto request, int userId);
+
+        /// <summary>
+        /// Deletes the specified tree if it belongs to the user.
+        /// </summary>
+        /// <param name="treeId">Identifier of the tree to delete.</param>
+        /// <param name="userId">Identifier of the owner.</param>
+        Task<bool> DeleteTreeAsync(int treeId, int userId);
     }
 }

@@ -59,5 +59,44 @@ namespace DotNet8.WebApi.Services
                 .Where(img => img.TreeId == treeId)
                 .ToListAsync();
         }
+
+        public async Task<Image?> UpdateImageAsync(int imageId, UpdateImageDto request, int userId)
+        {
+            var image = await context.Images
+                .Join(context.Trees, img => img.TreeId, tree => tree.Id, (img, tree) => new { img, tree })
+                .Where(x => x.img.Id == imageId && x.tree.UserId == userId)
+                .Select(x => x.img)
+                .SingleOrDefaultAsync();
+
+            if (image == null)
+            {
+                return null;
+            }
+
+            image.FileName = request.FileName;
+            image.ContentType = request.ContentType;
+            image.Data = request.Data;
+
+            await context.SaveChangesAsync();
+            return image;
+        }
+
+        public async Task<bool> DeleteImageAsync(int imageId, int userId)
+        {
+            var image = await context.Images
+                .Join(context.Trees, img => img.TreeId, tree => tree.Id, (img, tree) => new { img, tree })
+                .Where(x => x.img.Id == imageId && x.tree.UserId == userId)
+                .Select(x => x.img)
+                .SingleOrDefaultAsync();
+
+            if (image == null)
+            {
+                return false;
+            }
+
+            context.Images.Remove(image);
+            await context.SaveChangesAsync();
+            return true;
+        }
     }
 }

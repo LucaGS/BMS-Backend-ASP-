@@ -31,5 +31,39 @@ namespace DotNet8.WebApi.Controllers
             var image = await imageService.CreateImage(request, userId);
             return Ok(image);
         }
+
+        [HttpPut("{imageId}")]
+        public async Task<IActionResult> UpdateImage(int imageId, UpdateImageDto request)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var updated = await imageService.UpdateImageAsync(imageId, request, userId);
+            if (updated == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updated);
+        }
+
+        [HttpDelete("{imageId}")]
+        public async Task<IActionResult> DeleteImage(int imageId)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var deleted = await imageService.DeleteImageAsync(imageId, userId);
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

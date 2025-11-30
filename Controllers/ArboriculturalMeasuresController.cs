@@ -31,5 +31,39 @@ namespace DotNet8.WebApi.Controllers
             var measure = await measuresService.CreateArboriculturalMeasureAsync(request, userId);
             return Ok(measure);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateArboriculturalMeasure(int id, UpdateArboriculturalMeasuresDto request)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var updated = await measuresService.UpdateArboriculturalMeasureAsync(id, request, userId);
+            if (updated == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updated);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteArboriculturalMeasure(int id)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var deleted = await measuresService.DeleteArboriculturalMeasureAsync(id, userId);
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

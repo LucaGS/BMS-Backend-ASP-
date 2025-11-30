@@ -23,5 +23,20 @@ namespace DotNet8.WebApi.Services
         /// <param name="userId">The identifier of the owning user.</param>
         /// returns>Return the Last Image of the Tree.</returns>
         Task<Image?> GetLastImage(int treeId, int userId);
+
+        /// <summary>
+        /// Updates an image if the related tree belongs to the user.
+        /// </summary>
+        /// <param name="imageId">The Id of the image to update</param>
+        /// <param name="request">The updated image payload</param>
+        /// <param name="userId">The identifier of the owning user.</param>
+        Task<Image?> UpdateImageAsync(int imageId, UpdateImageDto request, int userId);
+
+        /// <summary>
+        /// Deletes an image if the related tree belongs to the user.
+        /// </summary>
+        /// <param name="imageId">The Id of the image to delete</param>
+        /// <param name="userId">The identifier of the owning user.</param>
+        Task<bool> DeleteImageAsync(int imageId, int userId);
     }
 }

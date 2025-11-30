@@ -20,5 +20,20 @@ namespace DotNet8.WebApi.Services
         /// </summary>
         /// <param name="userId">The identifier of the owning user.</param>
         Task<List<GreenArea>> GetGreenAreas(int userId);
+
+        /// <summary>
+        /// Updates a green area owned by the specified user.
+        /// </summary>
+        /// <param name="greenAreaId">Identifier of the green area.</param>
+        /// <param name="request">The update payload.</param>
+        /// <param name="userId">The identifier of the owning user.</param>
+        Task<GreenArea?> UpdateGreenAreaAsync(int greenAreaId, UpdateGreenAreaDto request, int userId);
+
+        /// <summary>
+        /// Deletes a green area owned by the specified user.
+        /// </summary>
+        /// <param name="greenAreaId">Identifier of the green area.</param>
+        /// <param name="userId">The identifier of the owning user.</param>
+        Task<bool> DeleteGreenAreaAsync(int greenAreaId, int userId);
     }
 }
