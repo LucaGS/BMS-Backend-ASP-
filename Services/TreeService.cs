@@ -23,6 +23,8 @@ namespace DotNet8.WebApi.Services
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
                 CrownDiameterMeters = request.CrownDiameterMeters,
+                CrownShape = request.CrownShape,
+                TrafficSafetyExpectation = request.TrafficSafetyExpectation,
                 TreeSizeMeters = request.TreeSizeMeters,
                 NumberOfTrunks = request.NumberOfTrunks,
                 TrunkDiameter1 = request.TrunkDiameter1,
@@ -72,6 +74,8 @@ namespace DotNet8.WebApi.Services
             tree.Latitude = request.Latitude;
             tree.Longitude = request.Longitude;
             tree.CrownDiameterMeters = request.CrownDiameterMeters;
+            tree.CrownShape = request.CrownShape;
+            tree.TrafficSafetyExpectation = request.TrafficSafetyExpectation;
             tree.TreeSizeMeters = request.TreeSizeMeters;
             tree.NumberOfTrunks = request.NumberOfTrunks;
             tree.TrunkDiameter1 = request.TrunkDiameter1;

@@ -9,6 +9,8 @@ namespace DotNet8.WebApi.Dtos
         public double Longitude { get; set; }
         public double Latitude { get; set; }
         public double CrownDiameterMeters { get; set; }
+        public string CrownShape { get; set; } = string.Empty;
+        public string TrafficSafetyExpectation { get; set; } = string.Empty;
         public int NumberOfTrunks { get; set; }
         public double TrunkDiameter1 { get; set; }
         public double TrunkDiameter2 { get; set; }

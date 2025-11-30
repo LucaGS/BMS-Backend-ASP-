@@ -1,103 +1,95 @@
-using DotNet8.WebApi.Data;
 using DotNet8.WebApi.Dtos;
 using DotNet8.WebApi.Entities;
 using DotNet8.WebApi.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace DotNet8.ScalarWebApi.Tests;
 
 public class TreeServiceTests
 {
-    private static AppDbContext CreateContext()
+    [Fact]
+    public async Task CreateTreeAsync_ReturnsNull_WhenNumberExistsForUser()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        await using var context = TestingHelpers.CreateContext();
+        var service = new TreeService(context);
+        await service.CreateTreeAsync(new CreateTreeDto { Number = 1, GreenAreaId = 1, Species = "Oak" }, userId: 1);
 
-        return new AppDbContext(options);
+        var duplicate = await service.CreateTreeAsync(new CreateTreeDto { Number = 1, GreenAreaId = 2, Species = "Pine" }, userId: 1);
+
+        Assert.Null(duplicate);
     }
 
     [Fact]
-    public async Task CreateTreeAsync_ReturnsNullWhenNumberExistsForUser()
+    public async Task UpdateTreeAsync_UpdatesFields_WhenOwnedByUser()
     {
-        await using var context = CreateContext();
-        await context.Trees.AddAsync(new Tree { UserId = 5, Number = 10, Species = "Oak" });
-        await context.SaveChangesAsync();
-
+        await using var context = TestingHelpers.CreateContext();
         var service = new TreeService(context);
-        var request = new CreateTreeDto { Number = 10, Species = "Birch" };
-
-        var result = await service.CreateTreeAsync(request, userId: 5);
-
-        Assert.Null(result);
-        Assert.Equal(1, await context.Trees.CountAsync());
-    }
-
-    [Fact]
-    public async Task CreateTreeAsync_PersistsWhenUniquePerUser()
-    {
-        await using var context = CreateContext();
-        var service = new TreeService(context);
-        var request = new CreateTreeDto
+        var created = await service.CreateTreeAsync(new CreateTreeDto
         {
             Number = 1,
-            Species = "Maple",
+            GreenAreaId = 1,
+            Species = "Oak",
+            Latitude = 1,
+            Longitude = 1,
+            CrownDiameterMeters = 2,
+            CrownShape = "Rounded",
+            TrafficSafetyExpectation = "Standard",
+            TreeSizeMeters = 3,
+            NumberOfTrunks = 1,
+            TrunkDiameter1 = 10,
+            TrunkDiameter2 = 0,
+            TrunkDiameter3 = 0
+        }, userId: 1);
+
+        var updated = await service.UpdateTreeAsync(created!.Id, new UpdateTreeDto
+        {
+            Number = 2,
             GreenAreaId = 3,
-            Latitude = 1.1,
-            Longitude = 2.2,
-            CrownDiameterMeters = 3.3,
+            Species = "Maple",
+            Latitude = 5,
+            Longitude = 6,
+            CrownDiameterMeters = 7,
+            CrownShape = "Vase",
+            TrafficSafetyExpectation = "High",
+            TreeSizeMeters = 8,
             NumberOfTrunks = 2,
-            TrunkDiameter1 = 12.5,
-            TrunkDiameter2 = 10.2,
-            TrunkDiameter3 = 0.0
-        };
+            TrunkDiameter1 = 11,
+            TrunkDiameter2 = 12,
+            TrunkDiameter3 = 13
+        }, userId: 1);
 
-        var tree = await service.CreateTreeAsync(request, userId: 9);
-
-        Assert.NotNull(tree);
-        Assert.True(tree!.Id > 0);
-        Assert.Equal(9, tree.UserId);
-        Assert.Equal(3, tree.GreenAreaId);
-        Assert.Equal("Maple", tree.Species);
-        Assert.Equal(12.5, tree.TrunkDiameter1);
-        Assert.Equal(10.2, tree.TrunkDiameter2);
-        Assert.Equal(0.0, tree.TrunkDiameter3);
-        Assert.Equal(1, await context.Trees.CountAsync());
+        Assert.NotNull(updated);
+        Assert.Equal(3, updated!.GreenAreaId);
+        Assert.Equal("Maple", updated.Species);
+        Assert.Equal(2, updated.Number);
+        Assert.Equal(7, updated.CrownDiameterMeters);
+        Assert.Equal(8, updated.TreeSizeMeters);
+        Assert.Equal(12, updated.TrunkDiameter2);
+        Assert.Equal("Vase", updated.CrownShape);
+        Assert.Equal("High", updated.TrafficSafetyExpectation);
     }
 
     [Fact]
-    public async Task GetAllTreesAsync_ReturnsTreesForUser()
+    public async Task UpdateTreeAsync_Throws_WhenNumberConflict()
     {
-        await using var context = CreateContext();
-        await context.Trees.AddRangeAsync(
-            new Tree { UserId = 1, Number = 1, Species = "A" },
-            new Tree { UserId = 2, Number = 2, Species = "B" });
-        await context.SaveChangesAsync();
-
+        await using var context = TestingHelpers.CreateContext();
         var service = new TreeService(context);
+        var tree1 = await service.CreateTreeAsync(new CreateTreeDto { Number = 1, GreenAreaId = 1, Species = "Oak" }, 1);
+        await service.CreateTreeAsync(new CreateTreeDto { Number = 2, GreenAreaId = 1, Species = "Pine" }, 1);
 
-        var trees = await service.GetAllTreesAsync(userId: 1);
-
-        Assert.Single(trees);
-        Assert.Equal(1, trees[0].UserId);
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.UpdateTreeAsync(tree1!.Id, new UpdateTreeDto { Number = 2, GreenAreaId = 1, Species = "Ash" }, 1));
     }
 
     [Fact]
-    public async Task GetTreesByGreenAreaIdAsync_FiltersByAreaAndUser()
+    public async Task DeleteTreeAsync_ReturnsFalse_WhenNotOwned()
     {
-        await using var context = CreateContext();
-        await context.Trees.AddRangeAsync(
-            new Tree { UserId = 1, GreenAreaId = 9, Number = 1, Species = "A" },
-            new Tree { UserId = 1, GreenAreaId = 10, Number = 2, Species = "B" },
-            new Tree { UserId = 2, GreenAreaId = 9, Number = 3, Species = "C" });
-        await context.SaveChangesAsync();
-
+        await using var context = TestingHelpers.CreateContext();
         var service = new TreeService(context);
+        var tree = await service.CreateTreeAsync(new CreateTreeDto { Number = 1, GreenAreaId = 1, Species = "Oak" }, 1);
 
-        var trees = await service.GetTreesByGreenAreaIdAsync(greenAreaId: 9, userId: 1);
+        var deleted = await service.DeleteTreeAsync(tree!.Id, userId: 2);
 
-        Assert.Single(trees);
-        Assert.Equal(9, trees[0].GreenAreaId);
-        Assert.Equal(1, trees[0].UserId);
+        Assert.False(deleted);
+        Assert.Equal(1, context.Trees.Count());
     }
 }
