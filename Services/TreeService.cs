@@ -23,9 +23,10 @@ namespace DotNet8.WebApi.Services
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
                 CrownDiameterMeters = request.CrownDiameterMeters,
-                CrownAttachmentHeightMeters = request.CrownAttachmentHeightMeters,
                 NumberOfTrunks = request.NumberOfTrunks,
-                TrunkInclination = request.TrunkInclination
+                TrunkDiameter1 = request.TrunkDiameter1,
+                TrunkDiameter2 = request.TrunkDiameter2,
+                TrunkDiameter3 = request.TrunkDiameter3
 
             };
 

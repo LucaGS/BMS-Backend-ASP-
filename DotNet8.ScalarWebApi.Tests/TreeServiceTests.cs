@@ -46,9 +46,10 @@ public class TreeServiceTests
             Latitude = 1.1,
             Longitude = 2.2,
             CrownDiameterMeters = 3.3,
-            CrownAttachmentHeightMeters = 4.4,
             NumberOfTrunks = 2,
-            TrunkInclination = 5.5
+            TrunkDiameter1 = 12.5,
+            TrunkDiameter2 = 10.2,
+            TrunkDiameter3 = 0.0
         };
 
         var tree = await service.CreateTreeAsync(request, userId: 9);
@@ -58,6 +59,9 @@ public class TreeServiceTests
         Assert.Equal(9, tree.UserId);
         Assert.Equal(3, tree.GreenAreaId);
         Assert.Equal("Maple", tree.Species);
+        Assert.Equal(12.5, tree.TrunkDiameter1);
+        Assert.Equal(10.2, tree.TrunkDiameter2);
+        Assert.Equal(0.0, tree.TrunkDiameter3);
         Assert.Equal(1, await context.Trees.CountAsync());
     }
 
