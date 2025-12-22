@@ -24,17 +24,11 @@ namespace DotNet8.WebApi.Services
                 Description = request.Description ?? string.Empty
             };
 
-            var tree = await context.Trees
-                .SingleOrDefaultAsync(t => t.Id == request.TreeId && t.UserId == userId);
+            var tree = await context.Trees.FindAsync(request.TreeId);
             if (tree == null)
             {
-                throw new InvalidOperationException(
-                    $"Tree with id {request.TreeId} not found for the current user.");
+                throw new InvalidOperationException($"Tree with id {request.TreeId} not found.");
             }
-
-            await using var transaction = context.Database.IsRelational()
-                ? await context.Database.BeginTransactionAsync()
-                : null;
 
             context.Inspections.Add(inspection);
 
@@ -133,17 +127,7 @@ namespace DotNet8.WebApi.Services
 
             await context.SaveChangesAsync();
 
-            if (transaction != null)
-            {
-                await transaction.CommitAsync();
-            }
-
-            // Reload with all navigations to return the persisted state (incl. database-generated keys).
-            return await context.Inspections
-                .Include(i => i.CrownInspection)
-                .Include(i => i.TrunkInspection)
-                .Include(i => i.StemBaseInspection)
-                .SingleAsync(i => i.Id == inspection.Id && i.UserId == userId);
+            return inspection;
         }
 
         private static CrownInspection MapCreateInspectionDtoToInspectionEntity(CreateInspectionDto request, Inspection inspection)
@@ -211,6 +195,16 @@ namespace DotNet8.WebApi.Services
             throw new NotImplementedException();
         }
 
+        public Task<List<Inspection>> GetAllInspectionsAsync(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Inspection> GetInspectionByIdAsync(int inspectionId, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<Inspection>> GetInspectionsByTreeIdAsync(int treeId, int userId)
         {
             return await context.Inspections
@@ -221,19 +215,13 @@ namespace DotNet8.WebApi.Services
                 .ToListAsync();
         }
 
-        public Task<List<Inspection>> GetAllInspectionsAsync(int userId)
+        public async Task<Inspection> GetInspectionByIdAsync(int inspectionId)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<Inspection?> GetInspectionByIdAsync(int inspectionId, int userId)
-        {
-            return context.Inspections
+            return await context.Inspections
                 .Include(inspection => inspection.CrownInspection)
                 .Include(inspection => inspection.TrunkInspection)
-                .Include(inspection => inspection.StemBaseInspection)
-                .SingleOrDefaultAsync(inspection =>
-                    inspection.Id == inspectionId && inspection.UserId == userId);
+                .Include(inspection => inspection.TrunkInspection)
+                .SingleOrDefaultAsync(inspection => inspection.Id == inspectionId);
         }
     }
 }
