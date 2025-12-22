@@ -98,5 +98,14 @@ namespace DotNet8.WebApi.Services
             await context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<Tree> GetLastCreatedTree(int userId)
+        {
+            var tree = await context.Trees
+            .Where(t => t.UserId == userId)
+            .OrderByDescending(t => t.Id)
+            .FirstOrDefaultAsync();
+            return tree;
+        }
     }
 }
