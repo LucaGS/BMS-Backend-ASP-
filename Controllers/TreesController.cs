@@ -52,13 +52,6 @@ namespace DotNet8.WebApi.Controllers
             return Ok(trees);
         }
 
-        [HttpGet("LastCreatedTree")]
-        public async Task<ActionResult<Tree>> GetLastCreatedTree() {
-            if (!currentUserService.TryGetUserId(out var userId)) return Unauthorized("User ID not found in token.");
-            var tree = await treeService.GetLastCreatedTree(userId);
-            return Ok(tree);
-        }
-
         [HttpPut("{treeId}")]
         public async Task<IActionResult> UpdateTree(int treeId, UpdateTreeDto request)
         {
