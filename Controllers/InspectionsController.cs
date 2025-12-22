@@ -40,12 +40,7 @@ namespace DotNet8.WebApi.Controllers
             {
                 return Unauthorized("User ID not found in token.");
             }
-            var inspection = await inspectionService.GetInspectionByIdAsync(inspectionId, userId);
-            if (inspection == null)
-            {
-                return NotFound();
-            }
-
+            var inspection = await inspectionService.GetInspectionByIdAsync(inspectionId);
             return Ok(inspection);
         }
     }

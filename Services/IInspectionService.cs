@@ -8,7 +8,7 @@ namespace DotNet8.WebApi.Services
         Task<Inspection> CreateInspectionAsync(CreateInspectionDto request, int userId);
         Task<List<Inspection>> GetInspectionsByTreeIdAsync(int treeId, int userId);
         Task<List<Inspection>> GetAllInspectionsAsync(int userId);
-        Task<Inspection?> GetInspectionByIdAsync(int inspectionId, int userId);
+        Task<Inspection> GetInspectionByIdAsync(int inspectionId);
         Task<bool> DeleteInspectionAsync(int inspectionId, int userId);
     }
 }
