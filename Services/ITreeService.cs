@@ -42,6 +42,6 @@ namespace DotNet8.WebApi.Services
         /// <param name="treeId">Identifier of the tree to delete.</param>
         /// <param name="userId">Identifier of the owner.</param>
         Task<bool> DeleteTreeAsync(int treeId, int userId);
-        Task<Tree> GetLastCreatedTree(int userId);
+        Task<Tree?> GetLastCreatedTree(int userId);
     }
 }

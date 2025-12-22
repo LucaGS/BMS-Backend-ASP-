@@ -99,7 +99,7 @@ namespace DotNet8.WebApi.Services
             return true;
         }
 
-        public async Task<Tree> GetLastCreatedTree(int userId)
+        public async Task<Tree?> GetLastCreatedTree(int userId)
         {
             var tree = await context.Trees
             .Where(t => t.UserId == userId)
