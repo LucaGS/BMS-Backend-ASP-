@@ -11,7 +11,7 @@ namespace DotNet8.WebApi.Entities
         public int UserId { get; set; }
         public int NewInspectionIntervall { get; set; }
         public string DevelopmentalStage { get; set; } = string.Empty;
-        public int Vitality { get; set; }
+        public string Vitality { get; set; } = String.Empty;
         public String Description { get; set; } = string.Empty;
         public CrownInspection CrownInspection { get; set; } = new();
         public TrunkInspection TrunkInspection { get; set; } = new();

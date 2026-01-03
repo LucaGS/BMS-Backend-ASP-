@@ -6,7 +6,7 @@ namespace DotNet8.WebApi.Dtos
         public int TreeId { get; set; }
         public int NewInspectionIntervall { get; set; }
         public string DevelopmentalStage { get; set; } = string.Empty;
-        public int Vitality { get; set; }
+        public string Vitality { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<int> ArboriculturalMeasureIds { get; set; } = new();
         public CreateCrownInspectionDto CrownInspection { get; set; } = new();

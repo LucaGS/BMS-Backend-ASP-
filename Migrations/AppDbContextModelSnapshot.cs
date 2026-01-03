@@ -530,8 +530,9 @@ namespace DotNet8.WebApi.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Vitality")
-                        .HasColumnType("integer");
+                    b.Property<string>("Vitality")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
