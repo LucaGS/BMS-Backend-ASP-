@@ -29,5 +29,36 @@ namespace DotNet8.WebApi.Services
                 .Where(area => area.UserId == userId)
                 .ToListAsync();
         }
+
+        public async Task<GreenArea?> UpdateGreenAreaAsync(int greenAreaId, UpdateGreenAreaDto request, int userId)
+        {
+            var greenArea = await context.GreenAreas.SingleOrDefaultAsync(area =>
+                area.Id == greenAreaId && area.UserId == userId);
+            if (greenArea == null)
+            {
+                return null;
+            }
+
+            greenArea.Name = request.Name;
+            greenArea.Longitude = request.Longitude;
+            greenArea.Latitude = request.Latitude;
+
+            await context.SaveChangesAsync();
+            return greenArea;
+        }
+
+        public async Task<bool> DeleteGreenAreaAsync(int greenAreaId, int userId)
+        {
+            var greenArea = await context.GreenAreas.SingleOrDefaultAsync(area =>
+                area.Id == greenAreaId && area.UserId == userId);
+            if (greenArea == null)
+            {
+                return false;
+            }
+
+            context.GreenAreas.Remove(greenArea);
+            await context.SaveChangesAsync();
+            return true;
+        }
     }
 }

@@ -33,5 +33,39 @@ namespace DotNet8.WebApi.Controllers
             var greenAreas = await greenAreaService.GetGreenAreas(userId);
             return Ok(greenAreas);
         }
+
+        [HttpPut("{greenAreaId}")]
+        public async Task<IActionResult> UpdateGreenArea(int greenAreaId, UpdateGreenAreaDto request)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var updatedGreenArea = await greenAreaService.UpdateGreenAreaAsync(greenAreaId, request, userId);
+            if (updatedGreenArea == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedGreenArea);
+        }
+
+        [HttpDelete("{greenAreaId}")]
+        public async Task<IActionResult> DeleteGreenArea(int greenAreaId)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var deleted = await greenAreaService.DeleteGreenAreaAsync(greenAreaId, userId);
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

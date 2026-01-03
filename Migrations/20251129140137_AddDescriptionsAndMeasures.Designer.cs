@@ -3,6 +3,7 @@ using System;
 using DotNet8.WebApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DotNet8.WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129140137_AddDescriptionsAndMeasures")]
+    partial class AddDescriptionsAndMeasures
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -741,12 +744,11 @@ namespace DotNet8.WebApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("CrownDiameterMeters")
+                    b.Property<double>("CrownAttachmentHeightMeters")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("CrownShape")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<double>("CrownDiameterMeters")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("GreenAreaId")
                         .HasColumnType("integer");
@@ -760,9 +762,6 @@ namespace DotNet8.WebApi.Migrations
                     b.Property<double>("Longitude")
                         .HasColumnType("double precision");
 
-                    b.Property<DateTime>("NextInspection")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("Number")
                         .HasColumnType("integer");
 
@@ -773,20 +772,7 @@ namespace DotNet8.WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("TrafficSafetyExpectation")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("TreeSizeMeters")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("TrunkDiameter1")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("TrunkDiameter2")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("TrunkDiameter3")
+                    b.Property<double>("TrunkInclination")
                         .HasColumnType("double precision");
 
                     b.Property<int>("UserId")

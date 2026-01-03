@@ -1,76 +1,62 @@
-using DotNet8.WebApi.Data;
 using DotNet8.WebApi.Dtos;
 using DotNet8.WebApi.Entities;
 using DotNet8.WebApi.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace DotNet8.ScalarWebApi.Tests;
 
 public class ImageServiceTests
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
-
     [Fact]
-    public async Task CreateImage_PersistsAndReturnsImage()
+    public async Task CreateImage_Throws_WhenTreeNotOwned()
     {
-        await using var context = CreateContext();
+        await using var context = TestingHelpers.CreateContext();
+        context.Trees.Add(new Tree { Id = 1, UserId = 2, Number = 1, GreenAreaId = 1, Species = "Oak" });
+        await context.SaveChangesAsync();
         var service = new ImageService(context);
-        var request = new CreateImageDto
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateImage(new CreateImageDto
         {
-            TreeId = 4,
-            FileName = "tree.jpg",
-            ContentType = "image/jpeg",
-            Data = [1, 2, 3]
-        };
-
-        var image = await service.CreateImage(request, userId: 1);
-
-        Assert.NotNull(image);
-        Assert.True(image.Id > 0);
-        Assert.Equal("tree.jpg", image.FileName);
-        Assert.Equal(1, await context.Images.CountAsync());
+            TreeId = 1,
+            FileName = "a",
+            ContentType = "image/png",
+            Data = Array.Empty<byte>()
+        }, userId: 1));
     }
 
     [Fact]
-    public async Task GetLastImage_ReturnsMostRecentForTree()
+    public async Task UpdateImageAsync_Updates_WhenOwned()
     {
-        await using var context = CreateContext();
-        await context.Images.AddRangeAsync(
-            new Image { TreeId = 5, FileName = "first.jpg" },
-            new Image { TreeId = 5, FileName = "second.jpg" },
-            new Image { TreeId = 6, FileName = "other.jpg" });
+        await using var context = TestingHelpers.CreateContext();
+        context.Trees.Add(new Tree { Id = 1, UserId = 1, Number = 1, GreenAreaId = 1, Species = "Oak" });
+        context.Images.Add(new Image { Id = 5, TreeId = 1, FileName = "old", ContentType = "image/png", Data = new byte[] { 1 } });
         await context.SaveChangesAsync();
-
         var service = new ImageService(context);
 
-        var last = await service.GetLastImage(treeId: 5, userId: 1);
+        var updated = await service.UpdateImageAsync(5, new UpdateImageDto
+        {
+            FileName = "new",
+            ContentType = "image/jpg",
+            Data = new byte[] { 1, 2 }
+        }, userId: 1);
 
-        Assert.NotNull(last);
-        Assert.Equal("second.jpg", last!.FileName);
+        Assert.NotNull(updated);
+        Assert.Equal("new", updated!.FileName);
+        Assert.Equal("image/jpg", updated.ContentType);
+        Assert.Equal(2, updated.Data.Length);
     }
 
     [Fact]
-    public async Task GetImages_ReturnsImagesForTree()
+    public async Task DeleteImageAsync_ReturnsFalse_WhenNotOwned()
     {
-        await using var context = CreateContext();
-        await context.Images.AddRangeAsync(
-            new Image { TreeId = 2, FileName = "a.jpg" },
-            new Image { TreeId = 3, FileName = "b.jpg" },
-            new Image { TreeId = 2, FileName = "c.jpg" });
+        await using var context = TestingHelpers.CreateContext();
+        context.Trees.Add(new Tree { Id = 1, UserId = 2, Number = 1, GreenAreaId = 1, Species = "Oak" });
+        context.Images.Add(new Image { Id = 7, TreeId = 1, FileName = "old", ContentType = "image/png", Data = Array.Empty<byte>() });
         await context.SaveChangesAsync();
-
         var service = new ImageService(context);
 
-        var images = await service.GetImages(treeId: 2, userId: 1);
+        var deleted = await service.DeleteImageAsync(imageId: 7, userId: 1);
 
-        Assert.Equal(2, images.Count);
-        Assert.All(images, img => Assert.Equal(2, img.TreeId));
+        Assert.False(deleted);
+        Assert.Single(context.Images);
     }
 }

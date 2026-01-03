@@ -23,9 +23,13 @@ namespace DotNet8.WebApi.Services
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
                 CrownDiameterMeters = request.CrownDiameterMeters,
-                CrownAttachmentHeightMeters = request.CrownAttachmentHeightMeters,
+                CrownShape = request.CrownShape,
+                TrafficSafetyExpectation = request.TrafficSafetyExpectation,
+                TreeSizeMeters = request.TreeSizeMeters,
                 NumberOfTrunks = request.NumberOfTrunks,
-                TrunkInclination = request.TrunkInclination
+                TrunkDiameter1 = request.TrunkDiameter1,
+                TrunkDiameter2 = request.TrunkDiameter2,
+                TrunkDiameter3 = request.TrunkDiameter3
 
             };
 
@@ -48,5 +52,54 @@ namespace DotNet8.WebApi.Services
                 .Where(tree => tree.GreenAreaId == greenAreaId && tree.UserId == userId)
                 .ToListAsync();
         }
+
+        public async Task<Tree?> UpdateTreeAsync(int treeId, UpdateTreeDto request, int userId)
+        {
+            var tree = await context.Trees.SingleOrDefaultAsync(t => t.Id == treeId && t.UserId == userId);
+            if (tree == null)
+            {
+                return null;
+            }
+
+            var numberInUse = await context.Trees
+                .AnyAsync(t => t.UserId == userId && t.Number == request.Number && t.Id != treeId);
+            if (numberInUse)
+            {
+                throw new InvalidOperationException("A tree with this number already exists.");
+            }
+
+            tree.GreenAreaId = request.GreenAreaId;
+            tree.Number = request.Number;
+            tree.Species = request.Species;
+            tree.Latitude = request.Latitude;
+            tree.Longitude = request.Longitude;
+            tree.CrownDiameterMeters = request.CrownDiameterMeters;
+            tree.CrownShape = request.CrownShape;
+            tree.TrafficSafetyExpectation = request.TrafficSafetyExpectation;
+            tree.TreeSizeMeters = request.TreeSizeMeters;
+            tree.NumberOfTrunks = request.NumberOfTrunks;
+            tree.TrunkDiameter1 = request.TrunkDiameter1;
+            tree.TrunkDiameter2 = request.TrunkDiameter2;
+            tree.TrunkDiameter3 = request.TrunkDiameter3;
+
+            await context.SaveChangesAsync();
+            return tree;
+        }
+
+        public async Task<bool> DeleteTreeAsync(int treeId, int userId)
+        {
+            var tree = await context.Trees.SingleOrDefaultAsync(t => t.Id == treeId && t.UserId == userId);
+            if (tree == null)
+            {
+                return false;
+            }
+
+            context.Trees.Remove(tree);
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+
+
     }
 }

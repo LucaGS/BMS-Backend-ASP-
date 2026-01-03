@@ -48,5 +48,58 @@ namespace DotNet8.WebApi.Controllers
 
             return Ok(inspection);
         }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAllInspections()
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var inspections = await inspectionService.GetAllInspectionsAsync(userId);
+            return Ok(inspections);
+        }
+
+        [HttpPut("{inspectionId}")]
+        public async Task<IActionResult> UpdateInspection(int inspectionId, UpdateInspectionDto request)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            try
+            {
+                var updated = await inspectionService.UpdateInspectionAsync(inspectionId, request, userId);
+                if (updated == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updated);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{inspectionId}")]
+        public async Task<IActionResult> DeleteInspection(int inspectionId)
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var deleted = await inspectionService.DeleteInspectionAsync(inspectionId, userId);
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

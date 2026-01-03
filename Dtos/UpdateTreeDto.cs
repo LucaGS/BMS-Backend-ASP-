@@ -1,6 +1,6 @@
 namespace DotNet8.WebApi.Dtos
 {
-    public class CreateTreeDto
+    public class UpdateTreeDto
     {
         public int GreenAreaId { get; set; }
         public int Number { get; set; }
