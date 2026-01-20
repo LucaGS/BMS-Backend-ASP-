@@ -92,5 +92,16 @@ namespace DotNet8.WebApi.Controllers
 
             return NoContent();
         }
+        [HttpGet("GetLastCreatedTree")]
+        public async Task<ActionResult<List<Tree>>> GetLastCreatedTree()
+        {
+            if (!currentUserService.TryGetUserId(out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var trees = await treeService.GetLastCreatedTree(userId);
+            return Ok(trees);
+        }
     }
 }
