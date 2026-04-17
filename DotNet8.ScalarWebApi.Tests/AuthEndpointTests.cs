@@ -67,4 +67,23 @@ public class AuthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
             Assert.Contains("POST", allowedMethods);
         }
     }
+
+    [Fact]
+    public async Task LoginEndpoint_AllowsConfiguredCorsPreflightOrigin()
+    {
+        using var factory = CreateDevelopmentFactory();
+        using var client = factory.CreateClient();
+
+        using var request = new HttpRequestMessage(HttpMethod.Options, "/api/Auth/Login");
+        request.Headers.Add("Origin", "https://bms-frontnend-react-demo.up.railway.app");
+        request.Headers.Add("Access-Control-Request-Method", "POST");
+
+        var response = await client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(
+            "https://bms-frontnend-react-demo.up.railway.app",
+            response.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.Contains("POST", response.Headers.GetValues("Access-Control-Allow-Methods").Single());
+    }
 }
