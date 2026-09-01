@@ -1,12 +1,6 @@
 # BMS Backend API (.NET 8)
 Backend fuer ein Baum-Management-System mit JWT-gesicherter REST-API, Domain-Modell fuer Gruenflaechen/Baeume/Inspektionen/Bilder und sauberem Testing-Setup.
 Demo Frontend : https://bms-frontnend-react-demo.up.railway.app/
-## Was Arbeitgeber hier sehen
-- Mehrmandantenfaehige Domaene: Alle Entities sind an den angemeldeten User gebunden (`CurrentUserService`, Controller-Guards via JWT).
-- Datenhaltung: EF Core, InMemory-DB fuer lokale Entwicklung; PostgreSQL + automatische Migrationen fuer Stage/Prod.
-- Validierte Fachlogik: Keine doppelten Baum-Nummern pro User (`Tree` Index, `TreeService`), Inspektionen inkl. Krone/Stamm/Wurzelbereich und Folge-Intervall.
-- API-Oberflaeche: Swagger/Scalar im Dev-Modus, wohldefinierte Controller fuer Auth, Gruenflaechen, Baeume, Inspektionen, Bilder und baumpflegerische Massnahmen.
-- Tests als Sicherheitsnetz: Unit- und Integrationstests pruefen Auth-Flow, Services und Endpunkte mit `WebApplicationFactory` und EF InMemory.
 
 ## Architektur in Kurzform
 - Einstieg: `Program.cs` richtet Controller, CORS, JWT-Validation, DB-Kontext und Auto-Migrationen (nur echte DB) ein.
